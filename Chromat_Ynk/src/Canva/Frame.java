@@ -12,9 +12,7 @@ public class Frame extends Application {
 		test.setScaleX(100);
 		test.setScaleY(100);
 		
-		test.setStyle("-fx-background-color:red;"
-				+ "-fx-border-color:blue;"
-				+ "-fx-border-width:30px");
+		test.setStyle("-fx-background-color:red;");
 		
 		Scene scene = new Scene(test);
 		stage.setTitle("Chromat-Ynk");
