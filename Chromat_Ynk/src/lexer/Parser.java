@@ -5,7 +5,7 @@ public class Parser {
 	public void Lexer (String[] path) {
 		/**Lire le fichier
 		 * 
-		 * mettre la liste d'instructions dans instructions
+		 * mettre la liste d'instructions dans instructionsss
 		 * **/
 	}
 }
