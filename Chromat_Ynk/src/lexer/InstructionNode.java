@@ -1,16 +1,19 @@
 package lexer;
 
+import java.util.Arrays;
+
 public class InstructionNode {
 	private Command command;
 	private String[] args;
-	private Instruction nextInstruction;
-	private Instruction conditionInstruction;
+	private InstructionNode nextInstruction;
+	private InstructionNode conditionInstruction;
+	private Boolean hasReturnToString=false;
 	
-	public InstructionNode() {
+	public InstructionNode(Command command, String[] args) {
 		this.nextInstruction = null;
 		this.conditionInstruction = null;
-		this.command = null;
-		this.args = null;
+		this.command = command;
+		this.args = args;
 	}
 	Command getCommand() {
 		return command;
@@ -18,16 +21,38 @@ public class InstructionNode {
 	void setCommand(Command command) {
 		this.command=command;
 	}
-	public Instruction getConditionInstruction() {
+	public String[] getArgs() {
+		return args;
+	}
+	public void setArgs(String[] args) {
+		this.args = args;
+	}
+	public InstructionNode getConditionInstruction() {
 		return conditionInstruction;
 	}
-	public void setConditionInstruction(Instruction conditionInstruction) {
+	public void setConditionInstruction(InstructionNode conditionInstruction) {
 		this.conditionInstruction = conditionInstruction;
 	}
-	public Instruction getNextInstruction() {
+	public InstructionNode getNextInstruction() {
 		return nextInstruction;
 	}
-	public void setNextInstruction(Instruction nextInstruction) {
+	public void setNextInstruction(InstructionNode nextInstruction) {
 		this.nextInstruction = nextInstruction;
+	}
+	@Override
+	public String toString() {
+		String temp = this.command.toString()+Arrays.toString(this.args);
+		if(this.conditionInstruction!=null) {
+			if(this.hasReturnToString==true) {
+				return "END";
+			}
+			this.hasReturnToString=true;
+			temp=temp+this.conditionInstruction.toString();
+			this.hasReturnToString=false;
+		}
+		if(this.nextInstruction==null) {
+			return temp+";";
+		}
+		return temp+", "+this.nextInstruction.toString();
 	}
 }
