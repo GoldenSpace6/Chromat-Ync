@@ -67,7 +67,11 @@ public class Parser {
 			}
 			if(instructions[ci].getCommand() != Command.FOR)  {
 				Command tempcommand = instructions[ci].getCommand();
-				ret.setArgs(instructions[ci].getArgs());//ret.setArgs(magic(instructions[ci].getArgs()));
+
+				BoolExpression condition = new BoolExpression(instructions[ci].getArgs());
+				condition.lexer();
+				ret.setCondition(condition);
+				ret.setArgs(null);//ret.setArgs(magic(instructions[ci].getArgs()));
 				ret.setCommand(Command.IF);
 				ci++;
 				this.prevConditionInstruction = ret;

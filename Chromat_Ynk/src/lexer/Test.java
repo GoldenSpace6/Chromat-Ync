@@ -16,10 +16,9 @@ public class Test {
 		//if the user enter i, it will enter the instruction block 
 		//if the user enter e, the program will stop
 		Scanner s = new Scanner(System.in);
-		System.out.println(main.startInstruction);
 		String str="";
-		while(main.startInstruction!=null || str.equals("e") ) {
-			System.out.println(main.startInstruction);
+		while(main.startInstruction!=null && (str.equals("e")==false) ) {
+			System.out.print(main.startInstruction+" | ");
 			str=s.next();
 			if (str.equals("i") && main.startInstruction.getConditionInstruction()!=null) {
 				main.startInstruction = main.startInstruction.getConditionInstruction();
@@ -28,6 +27,11 @@ public class Test {
 			}
 		}
 		s.close();
-		//System.out.println(main.startInstruction.getNextInstruction().getNextInstruction().getConditionInstruction().getNextInstruction());
+		/*//String[] boolExprSimple = {"TRUE","&&","TRUE","!","FALSE","||","FALSE","&&","TRUE"};
+		String[] boolExprSimple = {"5","<","6","&&","a",">=","B","||","abc"};
+		BoolExpression boolExpr = new BoolExpression(boolExprSimple);
+		boolExpr.lexer();
+		System.out.print(boolExpr);
+		*///System.out.println(main.startInstruction.getNextInstruction().getNextInstruction().getConditionInstruction().getNextInstruction());
 	}
 }

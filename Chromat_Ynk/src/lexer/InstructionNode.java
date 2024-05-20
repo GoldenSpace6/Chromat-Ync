@@ -5,8 +5,10 @@ import java.util.Arrays;
 public class InstructionNode {
 	private Command command;
 	private String[] args;
+	private BoolExpression condition;
 	private InstructionNode nextInstruction;
 	private InstructionNode conditionInstruction;
+	
 	private Boolean hasReturnToString=false;
 	
 	public InstructionNode(Command command, String[] args) {
@@ -27,6 +29,12 @@ public class InstructionNode {
 	public void setArgs(String[] args) {
 		this.args = args;
 	}
+	public BoolExpression getCondition() {
+		return condition;
+	}
+	public void setCondition(BoolExpression condition) {
+		this.condition = condition;
+	}
 	public InstructionNode getConditionInstruction() {
 		return conditionInstruction;
 	}
@@ -41,7 +49,10 @@ public class InstructionNode {
 	}
 	@Override
 	public String toString() {
-		return this.command.toString()+Arrays.toString(this.args);
+		if(condition==null) {
+			return this.command.toString()+" "+Arrays.toString(this.args);
+		} 
+		return this.command.toString()+" "+condition.toString();
 		
 	}
 	public String toStringAll() {
