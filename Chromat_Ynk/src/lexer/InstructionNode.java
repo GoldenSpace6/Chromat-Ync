@@ -41,18 +41,22 @@ public class InstructionNode {
 	}
 	@Override
 	public String toString() {
-		String temp = this.command.toString()+Arrays.toString(this.args);
+		return this.command.toString()+Arrays.toString(this.args);
+		
+	}
+	public String toStringAll() {
+		String temp=this.toString();
 		if(this.conditionInstruction!=null) {
 			if(this.hasReturnToString==true) {
 				return "END";
 			}
 			this.hasReturnToString=true;
-			temp=temp+this.conditionInstruction.toString();
+			temp=temp+this.conditionInstruction.toStringAll();
 			this.hasReturnToString=false;
 		}
 		if(this.nextInstruction==null) {
 			return temp+";";
 		}
-		return temp+", "+this.nextInstruction.toString();
+		return temp+", "+this.nextInstruction.toStringAll();
 	}
 }
