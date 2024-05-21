@@ -1,14 +1,39 @@
 package lexer;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Parser {
 	private Instruction[] instructions;
-	public void Lexer (String[] path) {
-		/**Lire le fichier
-		 * 
-		 * mettre la liste d'instructions dans instructions
-		 * **/
+	public void Lexer (File file) throws IOException {
+		ArrayList<Instruction> instructionList = new ArrayList<Instruction>();
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+			String line = reader.readLine();
+			while (line!=null) {
+				String[] words = line.split(" ");
+				System.out.println(words);
+				instructionList.add(toInstruction(words));
+				line = reader.readLine();
+			}
+			instructions = new Instruction[instructionList.size()];
+			instructions = instructionList.toArray(instructions);
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public Instruction toInstruction (String[] words) {
+		Instruction instruction = new Instruction(Command.fromString(words[0]), Arrays.copyOfRange(words,1,words.length));
+		return instruction;
 	}
 	
 	
@@ -19,8 +44,13 @@ public class Parser {
 	InstructionNode prevConditionInstruction;
 	ArrayList<InstructionNode> prevList = new ArrayList<>(); //listdestrucquichercheapointersurlaprochaineinstruction en next 
 	
-	public Parser(Instruction[] i) { //temporary arguments
-		this.instructions=i;
+	public Parser(File file) { //temporary arguments
+		try {
+			Lexer(file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ci = 0;
 		startInstruction= null;
 		prevConditionInstruction = null;
