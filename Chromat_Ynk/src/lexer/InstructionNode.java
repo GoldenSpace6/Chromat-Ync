@@ -2,10 +2,10 @@ package lexer;
 
 import java.util.Arrays;
 
+
 public class InstructionNode {
 	private Command command;
 	private String[] args;
-	private BoolExpression condition;
 	private InstructionNode nextInstruction;
 	private InstructionNode conditionInstruction;
 	
@@ -17,10 +17,10 @@ public class InstructionNode {
 		this.command = command;
 		this.args = args;
 	}
-	Command getCommand() {
+	public Command getCommand() {
 		return command;
 	}
-	void setCommand(Command command) {
+	public void setCommand(Command command) {
 		this.command=command;
 	}
 	public String[] getArgs() {
@@ -28,12 +28,6 @@ public class InstructionNode {
 	}
 	public void setArgs(String[] args) {
 		this.args = args;
-	}
-	public BoolExpression getCondition() {
-		return condition;
-	}
-	public void setCondition(BoolExpression condition) {
-		this.condition = condition;
 	}
 	public InstructionNode getConditionInstruction() {
 		return conditionInstruction;
@@ -49,11 +43,7 @@ public class InstructionNode {
 	}
 	@Override
 	public String toString() {
-		if(condition==null) {
-			return this.command.toString()+" "+Arrays.toString(this.args);
-		} 
-		return this.command.toString()+" "+condition.toString();
-		
+		return this.command.toString()+" "+Arrays.toString(this.args);		
 	}
 	public String toStringAll() {
 		String temp=this.toString();

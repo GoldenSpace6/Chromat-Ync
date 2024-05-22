@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
 public class Parser {
 	private Instruction[] instructions;
 	public void Lexer (File file) throws IOException {
@@ -16,7 +17,6 @@ public class Parser {
 			String line = reader.readLine();
 			while (line!=null) {
 				String[] words = line.split(" ");
-				System.out.println(words);
 				instructionList.add(toInstruction(words));
 				line = reader.readLine();
 			}
@@ -32,7 +32,7 @@ public class Parser {
 		}
 	}
 	public Instruction toInstruction (String[] words) {
-		Instruction instruction = new Instruction(Command.fromString(words[0]), Arrays.copyOfRange(words,1,words.length));
+		Instruction instruction = new Instruction(Command.valueOf(words[0]), Arrays.copyOfRange(words,1,words.length));
 		return instruction;
 	}
 	
@@ -48,7 +48,6 @@ public class Parser {
 		try {
 			Lexer(file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		ci = 0;
@@ -57,9 +56,8 @@ public class Parser {
 	}
 	
 	
-	void parserRec() {
-		System.out.print(ci);
-		//return tree starting at file[ci]
+	public void parserRec() {
+		//return graph starting at instructions[ci]
 		if (ci>=instructions.length ||  instructions[ci].getCommand() == Command.END) {
 			ci++;
 			return;
@@ -70,7 +68,7 @@ public class Parser {
 		if (startInstruction == null) {
 			startInstruction = ret;
 		}
-		//connect every unconnected instruction to this instruction
+		//connect every unconnected instruction to this instruction ------
 		if(this.prevConditionInstruction != null) {
 			this.prevConditionInstruction.setConditionInstruction(ret);
 			this.prevConditionInstruction = null;
@@ -79,7 +77,7 @@ public class Parser {
 			j.setNextInstruction(ret);
 		}
 		this.prevList.clear();
-		
+		//------
 		
 		if (instructions[ci].getCommand() != Command.IF && instructions[ci].getCommand() != Command.FOR && instructions[ci].getCommand() != Command.WHILE) {// != {FOR,WHILE}
 			ret.setConditionInstruction(null);
@@ -92,16 +90,14 @@ public class Parser {
 			return;
 		} else {
 			if (instructions[ci+1].getCommand() == Command.END) {
-				 //trows "cannot create empty instruction blocks";
+				//trow "cannot create empty instruction blocks";
 				return;
 			}
 			if(instructions[ci].getCommand() != Command.FOR)  {
 				Command tempcommand = instructions[ci].getCommand();
 
-				BoolExpression condition = new BoolExpression(instructions[ci].getArgs());
-				condition.lexer();
-				ret.setCondition(condition);
-				ret.setArgs(null);//ret.setArgs(magic(instructions[ci].getArgs()));
+
+				ret.setArgs(instructions[ci].getArgs());
 				ret.setCommand(Command.IF);
 				ci++;
 				this.prevConditionInstruction = ret;
@@ -157,5 +153,8 @@ public class Parser {
 				return 0;
 			}*/
 		}
+	}
+	public InstructionNode getStartInstruction() {
+		return startInstruction;
 	}
 }
