@@ -41,7 +41,7 @@ public class Interpreter {
 		return currentInstruction;
 	}
 
-    public void nextStep() {
+    public void nextStep() throws InterpreterException {
 
     	UserObjectValue[] args = new UserObjectValue[currentInstruction.getArgs().length];
     	VariableType[][] argumentType=currentInstruction.getCommand().argumentType();
@@ -57,12 +57,9 @@ public class Interpreter {
     		}
     	}
     	if (hasArgs==false) {
-			outputDisplay("Wrong number of arguments, got "+currentInstruction.getArgs());
-			//throw "Wrong number of arguments, got "+currentInstruction.getArgs()
-    		
+			throw new InterpreterException("Wrong number of arguments for command "+currentInstruction.getCommand()+" ,got "+Arrays.toString(currentInstruction.getArgs()));    		
     	}
     	//----
-
 		outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
     	//----
     	
@@ -83,78 +80,67 @@ public class Interpreter {
 
     		switch (currentInstruction.getCommand()) {
 			case CURSOR: {
-				if(cursors.containsKey(args[0].getValue())) {
-	    			outputDisplay("Cursor "+args[0].getValue()+" already exist");
-	    			//throw "Cursor "+args[0].getValue()+" already exist"
+				if(cursors.containsKey(args[0].getInt()) ) {
+	    			throw new InterpreterException("Cursor "+args[0].getInt()+" already exist");
 	    		} else {
-					cursorController.addCursor((int) Math.round((double)(args[0].getValue())));
+					cursorController.addCursor(args[0].getInt());
 	    			
 	    			//select the created cursor
-	    			selectedCursor=cursorController.getCursors().get((int) Math.round((double)args[0].getValue()));
+	    			selectedCursor=cursorController.getCursors().get(args[0].getInt());
 	    		}
 				break;
 			}
 			case SELECT: {
-				if(cursors.containsKey(args[0].getValue())==false) {
-	    			outputDisplay("Cursor "+args[0].getValue()+" doesn't exist");
-	    			//throw "Cursor "+args[0].getValue()+" doesn't exist"
+				if(cursors.containsKey(args[0].getInt())==false) {
+	    			throw new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
 	    		} else {
-	    			selectedCursor=cursors.get((int) args[0].getValue());
+	    			selectedCursor=cursors.get(args[0].getInt());
 	    		}
 				break;
 			}
 			case REMOVE: {
-				if(cursors.containsKey(args[0].getValue())==false) {
-	    			outputDisplay("Cursor "+args[0].getValue()+" doesn't exist");
-	    			//throw "Cursor "+args[0].getValue()+" doesn't exist"
+				if(cursors.containsKey(args[0].getInt())==false) {
+	    			throw new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
 	    		} else {
-	    			cursors.remove((int) args[0].getValue());
+	    			cursors.remove(args[0].getInt());
 	    		}
 				break;
 			}
 			case MIRROR: {
 				if(args.length==2) {
 					for(Cursor i: selectedCursor) {
-						//selectedCursor.add(new Cursor(i, (int) args[0].getValue(), (int) args[1].getValue()));
+						//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble()));
 					}
 				} else {
 					for(Cursor i: selectedCursor) {
-						//selectedCursor.add(new Cursor(i, (int) args[0].getValue(), (int) args[1].getValue(), (int) args[2].getValue(), (int) args[3].getValue()));
+						//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble(), args[2].getDouble(), args[3].getDouble()));
 					}
 				}
 				break;
 			}
 			case MIMIC: {
 				//MIMIC the first cursor of the id given
-				//cursors.get((int) args[0].getValue()).add(new Cursor(cursors.get((int) args[0].getValue()).get(0)));
+				//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getDouble()).get(0)));
 				break;
 			}
 			case DEL: {
-	    		String varName = (String) args[0].getValue();
-				if(UserObjectValue.isAVariable(varName)==false) {
-	    			outputDisplay("Variable "+varName+"is not a valide variable, variable can only contain letters.");
-	    			//throw varName+"is not a valide variable, variable can only contain letters."
-				}
-				if(vars.containsKey(varName)==false) {
-	    			outputDisplay("Variable "+varName+" doesn't exist");
-	    			//throw varName+" doesn't exist"
+				if(vars.containsKey(args[0].getString())==false) {
+	    			throw new InterpreterException("Variable "+args[0].getString()+" doesn't exist");
 	    		}
-    			vars.remove(varName);
+    			vars.remove(args[0].getString());
     			break;
 			}
 			case NUM:
 			case STR:
 			case BOOL: {
-	    		String varName = (String) args[0].getValue();
+	    		String varName =  args[0].getString();
 	    		
 				if(UserObjectValue.isAVariable(varName)==false) {
-	    			outputDisplay("Variable "+varName+"is not a valide variable, variable can only contain letters.");
-	    			//throw varName+"is not a valide variable, variable can only contain letters."
+	    			throw new InterpreterException("Variable "+varName+"is not a valide variable, variable can only contains letters.");
 				}
 	    		VariableType currentCommand = VariableType.valueOf(currentInstruction.getCommand().toString());
 	    		if(vars.containsKey(varName) && vars.get(varName).getReturnType()!=currentCommand) {
-	    			outputDisplay("cannot change type from "+vars.get(varName).getReturnType()+" to "+currentCommand);
-	    			//throw "cannot change type from "+vars.get(arg[0]).getReturnType()+" to "+currentCommand
+	    			throw new InterpreterException("cannot change type from "+vars.get(varName).getReturnType()+" to "+currentCommand);
 	    		}
     			vars.put(varName,args[1]);
     			break;
@@ -179,7 +165,7 @@ public class Interpreter {
         System.out.println("Output : " + text);
     }
     
-    public void executeAll() {
+    public void executeAll() throws InterpreterException {
     	while(currentInstruction != null) {
     		nextStep();
 			

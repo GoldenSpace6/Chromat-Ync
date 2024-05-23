@@ -9,14 +9,13 @@ public class Expression extends Evaluable{
 	Operator[] operators;
 	OperatorType operatorType;
 
-	public Expression(String[] expressionArray,OperatorType operatorType) {
+	public Expression(String[] expressionArray,OperatorType operatorType) throws InterpreterException {
 		//str is an Expression as a String :"a==b"
 		this.evaluableList = new Evaluable[expressionArray.length/2+1];
 		this.operators = new Operator[expressionArray.length/2];
 		this.operatorType = operatorType;
 		if(this.operatorType==OperatorType.NumComparator && expressionArray.length!=3) {
-			System.out.print("NumComparator can only compare 2 numbers");
-			return; //throw "NumComparator can only compare 2 numbers"
+			throw new InterpreterException("NumComparator can only compare 2 numbers");
 		}
 		
 		Operator currentOp;
@@ -24,8 +23,7 @@ public class Expression extends Evaluable{
 		for(int i=2; i<expressionArray.length; i+=2) {
 			currentOp=Operator.fromString(expressionArray[i-1]);
 			if(currentOp.ExpressionType()!=this.operatorType) {
-				System.out.print("bad use of Expression(), "+currentOp+" is not of type "+operatorType);
-				return; //throw "bad use of Expression(), "+currentOp+" is not of type "+operatorType
+				throw new InterpreterException("bad use of Expression(), "+currentOp+" is not of type "+operatorType);
 			}
 			operators[i/2-1] = currentOp;
 			evaluableList[i/2] = Evaluable.nextNewEvaluable(expressionArray[i], operatorType);
@@ -34,14 +32,13 @@ public class Expression extends Evaluable{
 	@Override
 	public String toString() {
 		if (evaluableList.length==0 || evaluableList[0]==null) {
-			System.out.print("Expression can't be empty");
-			return "";//throw "Expression can't be empty";
+			return "Error";
+			//throw new InterpreterException("Expression can't be empty");
 		}
 		String ret = evaluableList[0].toString()+" ";
 		for(int i=1; i<evaluableList.length;i++) {
 			if (evaluableList[i]==null) {
-				System.out.print("Expression can't be empty");
-				return "";//throw "Expression can't be empty";
+				return "Error";
 			}
 			ret += operators[i-1].toString() +" "+ evaluableList[i].toString()+" ";
 		}
@@ -49,25 +46,22 @@ public class Expression extends Evaluable{
 	}
 	//evaluate the expression depending on the variables given
 	@Override
-	public Object eval(HashMap<String, UserObjectValue> variableNameList) {
+	public Object eval(HashMap<String, UserObjectValue> variableNameList) throws InterpreterException {
 		if (evaluableList.length==0) {
-			System.out.print("Expression can't be empty");
-			return "";//throw "Expression can't be empty";
+			throw new InterpreterException("Expression can't be empty");
 		}
 		//check on operatorType to know what type of operation to do
 		switch (operatorType) {
 		case BoolOperator:
 			//verify all entry are Boolean
 			if (evaluableList[0].getReturnType()!=VariableType.BOOL) {
-				System.out.print("Expected type BOOL but got\"+evaluableList[0].getReturnType()+\"and\"+evaluableList[1].getReturnType()");
-				return false;//throw "Expected type INT but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType()
+				throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
 			}
 			boolean ret = (boolean) evaluableList[0].eval(variableNameList);
 			for(int i=1; i<evaluableList.length;i++) {
 
 				if (evaluableList[i].getReturnType()!=VariableType.BOOL) {
-					System.out.print("Expected type BOOL but got\"+evaluableList[0].getReturnType()+\"and\"+evaluableList[1].getReturnType()");
-					return false;//throw "Expected type INT but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType()
+					throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
 				}
 				switch (operators[i-1]) {
 				case AND:
@@ -87,20 +81,19 @@ public class Expression extends Evaluable{
 		case NumComparator:
 			//verify it is comparing 2 numbers
 			if (evaluableList[0].getReturnType()!=VariableType.NUM && evaluableList[1].getReturnType()!=VariableType.NUM) {
-				System.out.print("Expected type INT but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
-				return false;//throw "Expected type INT but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType()
+				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
 			}
 			switch (operators[0]) {
 			case EQUALS:
-				return (int)evaluableList[0].eval(variableNameList) == (int)evaluableList[1].eval(variableNameList);
+				return (double)evaluableList[0].eval(variableNameList) == (double)evaluableList[1].eval(variableNameList);
 			case LESS:
-				return (int)evaluableList[0].eval(variableNameList) < (int)evaluableList[1].eval(variableNameList);
+				return (double)evaluableList[0].eval(variableNameList) < (double)evaluableList[1].eval(variableNameList);
 			case LESSEQUALS:
-				return (int)evaluableList[0].eval(variableNameList) <= (int)evaluableList[1].eval(variableNameList);
+				return (double)evaluableList[0].eval(variableNameList) <= (double)evaluableList[1].eval(variableNameList);
 			case GREATER:
-				return (int)evaluableList[0].eval(variableNameList) > (int)evaluableList[1].eval(variableNameList);
+				return (double)evaluableList[0].eval(variableNameList) > (double)evaluableList[1].eval(variableNameList);
 			case GREATEREQUALS:
-				return (int)evaluableList[0].eval(variableNameList) >= (int)evaluableList[1].eval(variableNameList);
+				return (double)evaluableList[0].eval(variableNameList) >= (double)evaluableList[1].eval(variableNameList);
 			default:
 				throw new IllegalArgumentException("Unexpected value: " + operators[0]);
 			}

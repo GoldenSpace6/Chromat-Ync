@@ -15,6 +15,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import interpreter.Interpreter;
+import interpreter.InterpreterException;
 
 /**
  * ChromatYnc is the abstraction class of the application with a PAC model
@@ -138,7 +139,11 @@ public class ChromatYnc {
      */
     public void processFile(File fileToLoad) {
         Interpreter interpreter = new Interpreter(fileToLoad, canvas.get(), delayBetweenFrames, output, cursorController);
-        interpreter.executeAll();
+        try {
+			interpreter.executeAll();
+		} catch (InterpreterException e) {
+			System.err.println(e.getMessage());
+		}
     }
 
     /**

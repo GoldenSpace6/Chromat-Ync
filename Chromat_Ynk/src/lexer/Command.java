@@ -29,13 +29,13 @@ public enum Command {
 		case MIMIC: {return new VariableType[][]{new VariableType[]{ VariableType.NUM }};}
 		case IF:
 		case WHILE: {return new VariableType[][]{new VariableType[]{ VariableType.BOOL }};}
-		case FOR: {return new VariableType[][]{new VariableType[]{ VariableType.STR,VariableType.NUM,VariableType.NUM,VariableType.NUM },
-												new VariableType[]{ VariableType.STR,VariableType.NUM,VariableType.NUM },
-												new VariableType[]{ VariableType.STR,VariableType.NUM }};}
-		case DEL: {return new VariableType[][]{new VariableType[]{ VariableType.STR }};}
+		case FOR: {return new VariableType[][]{new VariableType[]{ VariableType.VAR,VariableType.NUM,VariableType.NUM,VariableType.NUM },
+												new VariableType[]{ VariableType.VAR,VariableType.NUM,VariableType.NUM },
+												new VariableType[]{ VariableType.VAR,VariableType.NUM }};}
+		case DEL: {return new VariableType[][]{new VariableType[]{ VariableType.VAR }};}
 		case NUM:
 		case BOOL:
-		case STR: {return new VariableType[][]{new VariableType[]{ VariableType.STR,VariableType.NUM }};}
+		case STR: {return new VariableType[][]{new VariableType[]{ VariableType.VAR,VariableType.NUM }};}
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + this);
 		}

@@ -180,7 +180,7 @@ public class Cursor {
 
 
     public void execCommand(Command c,UserObjectValue[] valueList) {
-		System.out.println(c.toString()+" "+Arrays.toString(valueList));
+		//System.out.println(c.toString()+" "+Arrays.toString(valueList));
 		String command = c.toString();
 
         if (command.equals("FWD")) {
