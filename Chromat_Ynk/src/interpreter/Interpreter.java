@@ -60,7 +60,8 @@ public class Interpreter {
 			throw new InterpreterException("Wrong number of arguments for command "+currentInstruction.getCommand()+" ,got "+Arrays.toString(currentInstruction.getArgs()));    		
     	}
     	//----
-		outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
+        System.out.println(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
+		//outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
     	//----
     	
     	if(currentInstruction.getCommand().isCondition()) {
@@ -150,6 +151,9 @@ public class Interpreter {
 			}
 			currentInstruction = currentInstruction.getNextInstruction();
     	} else if(currentInstruction.getCommand().isCursorCommand()) {
+    		if (selectedCursor==null) {
+    			throw new InterpreterException("No cursor Selected");
+    		}
     		for(Cursor i:selectedCursor) {
     			i.execCommand(currentInstruction.getCommand(), args);
     		}

@@ -55,13 +55,13 @@ public class Expression extends Evaluable{
 		case BoolOperator:
 			//verify all entry are Boolean
 			if (evaluableList[0].getReturnType()!=VariableType.BOOL) {
-				throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
+				throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType());
 			}
 			boolean ret = (boolean) evaluableList[0].eval(variableNameList);
 			for(int i=1; i<evaluableList.length;i++) {
 
 				if (evaluableList[i].getReturnType()!=VariableType.BOOL) {
-					throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
+					throw new InterpreterException("Expected type BOOL but got"+evaluableList[i].getReturnType());
 				}
 				switch (operators[i-1]) {
 				case AND:
@@ -97,7 +97,50 @@ public class Expression extends Evaluable{
 			default:
 				throw new IllegalArgumentException("Unexpected value: " + operators[0]);
 			}
-
+		case NumAdder:
+			//verify all entry are NUM
+			if (evaluableList[0].getReturnType()!=VariableType.NUM) {
+				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType());
+			}
+			double ret2 = (double) evaluableList[evaluableList.length-1].eval(variableNameList);
+			for(int i=evaluableList.length-2; i>=0;i--) {
+				if (evaluableList[i].getReturnType()!=VariableType.NUM) {
+					throw new InterpreterException("Expected type NUM but got"+evaluableList[i].getReturnType());
+				}
+				switch (operators[i]) {
+				case ADD:
+					ret2 = (double)evaluableList[i].eval(variableNameList) + ret2;
+					break;
+				case SUBSTRACT:
+					ret2 = (double)evaluableList[i].eval(variableNameList) - ret2;
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + operators[i]);
+				}
+			}
+			return ret2;
+		case NumMultiplier:
+			//verify all entry are NUM
+			if (evaluableList[0].getReturnType()!=VariableType.NUM) {
+				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType());
+			}
+			double ret3 = (double) evaluableList[evaluableList.length-1].eval(variableNameList);
+			for(int i=evaluableList.length-2; i>=0;i--) {
+				if (evaluableList[i].getReturnType()!=VariableType.NUM) {
+					throw new InterpreterException("Expected type NUM but got"+evaluableList[i].getReturnType());
+				}
+				switch (operators[i]) {
+				case MULTIPLY:
+					ret3 = (double)evaluableList[i].eval(variableNameList) * ret3;
+					break;
+				case DIVIDE:
+					ret3 = (double)evaluableList[i].eval(variableNameList) / ret3;
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + operators[i]);
+				}
+			}
+			return ret3;
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + operatorType);
 		}
@@ -109,6 +152,9 @@ public class Expression extends Evaluable{
 		case BoolOperator:
 		case NumComparator:
 			return VariableType.BOOL;
+		case NumAdder:
+		case NumMultiplier:
+			return VariableType.NUM;
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + operatorType);
 		}
