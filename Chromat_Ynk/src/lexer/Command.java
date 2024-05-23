@@ -1,6 +1,6 @@
 package lexer;
 
-import Interpreter.VariableType;
+import interpreter.VariableType;
 
 public enum Command {
 	FWD, BWD, TURN, MOV, POS, HIDE, SHOW, PRESS, COLOR, THICK, LOOKAT, CURSOR, SELECT, REMOVE, IF, FOR, WHILE, END, MIMIC, MIRROR, NUM, STR, BOOL, DEL;
