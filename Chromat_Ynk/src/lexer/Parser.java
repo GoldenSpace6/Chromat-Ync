@@ -32,6 +32,7 @@ public class Parser {
 		}
 	}
 	public Instruction toInstruction (String[] words) {
+		System.out.print(words[0]);
 		Instruction instruction = new Instruction(Command.valueOf(words[0]), Arrays.copyOfRange(words,1,words.length));
 		return instruction;
 	}
@@ -79,7 +80,7 @@ public class Parser {
 		this.prevList.clear();
 		//------
 		
-		if (instructions[ci].getCommand() != Command.IF && instructions[ci].getCommand() != Command.FOR && instructions[ci].getCommand() != Command.WHILE) {// != {FOR,WHILE}
+		if (instructions[ci].getCommand().isInstructionBlock()==false ) {// != {FOR,WHILE}
 			ret.setConditionInstruction(null);
 			ci++;
 			//save the last instruction in prevList to know where to go afterward
@@ -98,12 +99,12 @@ public class Parser {
 
 
 				ret.setArgs(instructions[ci].getArgs());
-				ret.setCommand(Command.IF);
+				ret.setCommand(instructions[ci].getCommand());
 				ci++;
 				this.prevConditionInstruction = ret;
 				parserRec();
 				//all inside instruction must link back to "while"
-				if(tempcommand == Command.WHILE) { 
+				if(tempcommand != Command.IF) { 
 					for(InstructionNode j : this.prevList) {
 						j.setNextInstruction(ret);
 					}

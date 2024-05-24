@@ -64,12 +64,43 @@ public class Interpreter {
 		//outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
     	//----
     	
-    	if(currentInstruction.getCommand().isCondition()) {
+    	if(currentInstruction.getCommand().isInstructionBlock()) {
     		if( currentInstruction.getCommand()==Command.IF || currentInstruction.getCommand()==Command.WHILE ) {
     			if((boolean) args[0].getValue()) {
     				currentInstruction = currentInstruction.getConditionInstruction();
     			} else {
     				currentInstruction = currentInstruction.getNextInstruction();
+    			}
+    		} else if (currentInstruction.getCommand()==Command.MIMIC) {
+    			if (currentInstruction.getHasBeenExecuted()) {
+    				//Remove temporary Cursor
+
+    				currentInstruction = currentInstruction.getNextInstruction();
+    			} else {
+    				//Create temporary Cursor
+    				currentInstruction.setHasBeenExecuted();
+					if(args.length==2) {
+						for(Cursor i: selectedCursor) {
+							//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble()));
+						}
+					} else {
+						for(Cursor i: selectedCursor) {
+							//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble(), args[2].getDouble(), args[3].getDouble()));
+						}
+					}
+    				currentInstruction = currentInstruction.getConditionInstruction();
+    			}
+    		} else if (currentInstruction.getCommand()==Command.MIRROR) {
+    			if (currentInstruction.getHasBeenExecuted()) {
+    				//Remove temporary Cursor
+
+    				currentInstruction = currentInstruction.getNextInstruction();
+    			} else {
+    				//Create temporary Cursor
+    				currentInstruction.setHasBeenExecuted();
+    				//MIMIC the first cursor of the id given
+    				//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getDouble()).get(0)));
+    				currentInstruction = currentInstruction.getConditionInstruction();
     			}
     		} else if (currentInstruction.getCommand()==Command.FOR) {
     			// ¯\_(ツ)_/¯
@@ -105,23 +136,6 @@ public class Interpreter {
 	    		} else {
 	    			cursors.remove(args[0].getInt());
 	    		}
-				break;
-			}
-			case MIRROR: {
-				if(args.length==2) {
-					for(Cursor i: selectedCursor) {
-						//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble()));
-					}
-				} else {
-					for(Cursor i: selectedCursor) {
-						//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble(), args[2].getDouble(), args[3].getDouble()));
-					}
-				}
-				break;
-			}
-			case MIMIC: {
-				//MIMIC the first cursor of the id given
-				//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getDouble()).get(0)));
 				break;
 			}
 			case DEL: {

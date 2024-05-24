@@ -8,14 +8,15 @@ public class InstructionNode {
 	private String[] args;
 	private InstructionNode nextInstruction;
 	private InstructionNode conditionInstruction;
-	
+	private Boolean hasBeenExecuted;
 	private Boolean hasReturnToString=false;
 	
 	public InstructionNode(Command command, String[] args) {
-		this.nextInstruction = null;
-		this.conditionInstruction = null;
 		this.command = command;
 		this.args = args;
+		this.nextInstruction = null;
+		this.conditionInstruction = null;
+		this.hasBeenExecuted=false;
 	}
 	public Command getCommand() {
 		return command;
@@ -40,6 +41,12 @@ public class InstructionNode {
 	}
 	public void setNextInstruction(InstructionNode nextInstruction) {
 		this.nextInstruction = nextInstruction;
+	}
+	public Boolean getHasBeenExecuted() {
+		return hasBeenExecuted;
+	}
+	public void setHasBeenExecuted() {
+		this.hasBeenExecuted = true;
 	}
 	@Override
 	public String toString() {
