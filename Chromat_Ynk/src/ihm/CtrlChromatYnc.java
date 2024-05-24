@@ -94,20 +94,17 @@ public class CtrlChromatYnc {
 
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
-            /*if (chromatYnc.getIsContinuous() && chromatYnc.getDelayBetweenFrames()==0) {
-                chromatYnc.processFile(selectedFile);    
-            } else {*/
-                output("processing file...");
-                Task<Void> processFileTask = new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        chromatYnc.processFile(selectedFile);
-                        return null;
-                    }
-                };
-                Thread fileProcessThread = new Thread(processFileTask);
-                fileProcessThread.setDaemon(true);
-                fileProcessThread.start();
+            output("processing file...");
+            Task<Void> processFileTask = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    chromatYnc.processFile(selectedFile);
+                    return null;
+                }
+            };
+            Thread fileProcessThread = new Thread(processFileTask);
+            fileProcessThread.setDaemon(true);
+            fileProcessThread.start();
         }
     }
 
