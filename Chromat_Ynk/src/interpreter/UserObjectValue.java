@@ -82,7 +82,7 @@ public class UserObjectValue extends Evaluable {
 	}
 	//return true if str represent a Variable
 	public static boolean isAVariable(String s) {
-		//Variable are only made of letter
+		//Variable can only contains letters
 		return s.matches("^[a-zA-Z]*$");
 	}
 	@Override

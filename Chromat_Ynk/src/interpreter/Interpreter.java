@@ -66,7 +66,7 @@ public class Interpreter {
     	
     	if(currentInstruction.getCommand().isInstructionBlock()) {
     		if( currentInstruction.getCommand()==Command.IF || currentInstruction.getCommand()==Command.WHILE ) {
-    			if((boolean) args[0].getValue()) {
+    			if(args[0].getBoolean()) {
     				currentInstruction = currentInstruction.getConditionInstruction();
     			} else {
     				currentInstruction = currentInstruction.getNextInstruction();
@@ -102,8 +102,6 @@ public class Interpreter {
     				//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getDouble()).get(0)));
     				currentInstruction = currentInstruction.getConditionInstruction();
     			}
-    		} else if (currentInstruction.getCommand()==Command.FOR) {
-    			// ¯\_(ツ)_/¯
     		} else {
     			outputDisplay("Invalid value for "+currentInstruction);
     			//throw "Invalid value for "+currentInstruction
