@@ -8,7 +8,6 @@ import java.util.HashMap;
 
 import ihm.Cursor;
 import ihm.CursorController;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -24,13 +23,11 @@ public class Interpreter {
 	private ObservableList<Cursor> selectedCursor;
     
 	private InstructionNode currentInstruction;
-    private DoubleProperty timeBetweenFrames;
 	private StringProperty output;
     
-    public Interpreter(File f, Canvas canvas, DoubleProperty timeBetweenFrames, StringProperty output, CursorController cursorController) {
+    public Interpreter(File f, Canvas canvas, StringProperty output, CursorController cursorController) {
     	this.vars= new HashMap<String, UserObjectValue>();
 		this.cursorController = cursorController;
-		this.timeBetweenFrames = timeBetweenFrames;
 		this.output = output;
     	this.cursors= cursorController.getCursors();
     	Parser parser = new Parser(f);
@@ -63,7 +60,6 @@ public class Interpreter {
         System.out.println(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
 		//outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
     	//----
-    	
     	if(currentInstruction.getCommand().isInstructionBlock()) {
     		if( currentInstruction.getCommand()==Command.IF || currentInstruction.getCommand()==Command.WHILE ) {
     			if(args[0].getBoolean()) {
@@ -71,35 +67,15 @@ public class Interpreter {
     			} else {
     				currentInstruction = currentInstruction.getNextInstruction();
     			}
-    		} else if (currentInstruction.getCommand()==Command.MIMIC) {
+    		} else if (currentInstruction.getCommand()==Command.MIMIC || currentInstruction.getCommand()==Command.MIRROR) {
     			if (currentInstruction.getHasBeenExecuted()) {
     				//Remove temporary Cursor
-
+    				//jpp
     				currentInstruction = currentInstruction.getNextInstruction();
     			} else {
     				//Create temporary Cursor
     				currentInstruction.setHasBeenExecuted();
-					if(args.length==2) {
-						for(Cursor i: selectedCursor) {
-							//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble()));
-						}
-					} else {
-						for(Cursor i: selectedCursor) {
-							//selectedCursor.add(new Cursor(i, args[0].getDouble(), args[1].getDouble(), args[2].getDouble(), args[3].getDouble()));
-						}
-					}
-    				currentInstruction = currentInstruction.getConditionInstruction();
-    			}
-    		} else if (currentInstruction.getCommand()==Command.MIRROR) {
-    			if (currentInstruction.getHasBeenExecuted()) {
-    				//Remove temporary Cursor
-
-    				currentInstruction = currentInstruction.getNextInstruction();
-    			} else {
-    				//Create temporary Cursor
-    				currentInstruction.setHasBeenExecuted();
-    				//MIMIC the first cursor of the id given
-    				//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getDouble()).get(0)));
+    				//jpp
     				currentInstruction = currentInstruction.getConditionInstruction();
     			}
     		} else {
@@ -152,8 +128,8 @@ public class Interpreter {
 	    			throw new InterpreterException("Variable "+varName+"is not a valide variable, variable can only contains letters.");
 				}
 	    		VariableType currentCommand = VariableType.valueOf(currentInstruction.getCommand().toString());
-	    		if(vars.containsKey(varName) && vars.get(varName).getReturnType()!=currentCommand) {
-	    			throw new InterpreterException("cannot change type from "+vars.get(varName).getReturnType()+" to "+currentCommand);
+	    		if(vars.containsKey(varName) && vars.get(varName).getReturnType(vars)!=currentCommand) {
+	    			throw new InterpreterException("cannot change type from "+vars.get(varName).getReturnType(vars)+" to "+currentCommand);
 	    		}
     			vars.put(varName,args[1]);
     			break;
@@ -181,17 +157,4 @@ public class Interpreter {
         System.out.println("Output : " + text);
     }
     
-    public void executeAll() throws InterpreterException {
-    	while(currentInstruction != null) {
-    		nextStep();
-			
-			try {
-				Thread.sleep((long)(timeBetweenFrames.get()*1000));
-			  } catch (InterruptedException e) {
-				outputDisplay("ERROR");
-				Thread.currentThread().interrupt();
-			  }
-    		
-    	}
-    }
 }

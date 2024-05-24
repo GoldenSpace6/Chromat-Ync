@@ -138,9 +138,18 @@ public class ChromatYnc {
      * @param fileToLoad Pathnames to the file to process
      */
     public void processFile(File fileToLoad) {
-        Interpreter interpreter = new Interpreter(fileToLoad, canvas.get(), delayBetweenFrames, output, cursorController);
-        try {
-			interpreter.executeAll();
+    	Interpreter interpreter = new Interpreter(fileToLoad, canvas.get(), output, cursorController);
+    	//execute all;
+    	try {
+    		while(interpreter.getCurrentInstruction() != null) {
+    			interpreter.nextStep();
+    			try {
+    				Thread.sleep((long)(delayBetweenFrames.get()*1000));
+    			} catch (InterruptedException e) {
+    				outputDisplay("ERROR");
+    				Thread.currentThread().interrupt();
+    			}
+    		}
 		} catch (InterpreterException e) {
 			System.err.println(e.getMessage());
 		}

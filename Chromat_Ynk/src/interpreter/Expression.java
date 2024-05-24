@@ -54,14 +54,14 @@ public class Expression extends Evaluable{
 		switch (operatorType) {
 		case BoolOperator:
 			//verify all entry are Boolean
-			if (evaluableList[0].getReturnType()!=VariableType.BOOL) {
-				throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType());
+			if (evaluableList[0].getReturnType(variableNameList)!=VariableType.BOOL) {
+				throw new InterpreterException("Expected type BOOL but got"+evaluableList[0].getReturnType(variableNameList));
 			}
 			boolean ret = (boolean) evaluableList[0].eval(variableNameList);
 			for(int i=1; i<evaluableList.length;i++) {
 
-				if (evaluableList[i].getReturnType()!=VariableType.BOOL) {
-					throw new InterpreterException("Expected type BOOL but got"+evaluableList[i].getReturnType());
+				if (evaluableList[i].getReturnType(variableNameList)!=VariableType.BOOL) {
+					throw new InterpreterException("Expected type BOOL but got"+evaluableList[i].getReturnType(variableNameList));
 				}
 				switch (operators[i-1]) {
 				case AND:
@@ -80,8 +80,8 @@ public class Expression extends Evaluable{
 			return ret;
 		case NumComparator:
 			//verify it is comparing 2 numbers
-			if (evaluableList[0].getReturnType()!=VariableType.NUM && evaluableList[1].getReturnType()!=VariableType.NUM) {
-				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType()+"and"+evaluableList[1].getReturnType());
+			if (evaluableList[0].getReturnType(variableNameList)!=VariableType.NUM && evaluableList[1].getReturnType(variableNameList)!=VariableType.NUM) {
+				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType(variableNameList)+"and"+evaluableList[1].getReturnType(variableNameList));
 			}
 			switch (operators[0]) {
 			case EQUALS:
@@ -99,13 +99,13 @@ public class Expression extends Evaluable{
 			}
 		case NumAdder:
 			//verify all entry are NUM
-			if (evaluableList[0].getReturnType()!=VariableType.NUM) {
-				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType());
+			if (evaluableList[0].getReturnType(variableNameList)!=VariableType.NUM) {
+				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType(variableNameList));
 			}
 			double ret2 = (double) evaluableList[evaluableList.length-1].eval(variableNameList);
 			for(int i=evaluableList.length-2; i>=0;i--) {
-				if (evaluableList[i].getReturnType()!=VariableType.NUM) {
-					throw new InterpreterException("Expected type NUM but got"+evaluableList[i].getReturnType());
+				if (evaluableList[i].getReturnType(variableNameList)!=VariableType.NUM) {
+					throw new InterpreterException("Expected type NUM but got"+evaluableList[i].getReturnType(variableNameList));
 				}
 				switch (operators[i]) {
 				case ADD:
@@ -121,13 +121,13 @@ public class Expression extends Evaluable{
 			return ret2;
 		case NumMultiplier:
 			//verify all entry are NUM
-			if (evaluableList[0].getReturnType()!=VariableType.NUM) {
-				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType());
+			if (evaluableList[0].getReturnType(variableNameList)!=VariableType.NUM) {
+				throw new InterpreterException("Expected type NUM but got"+evaluableList[0].getReturnType(variableNameList));
 			}
 			double ret3 = (double) evaluableList[evaluableList.length-1].eval(variableNameList);
 			for(int i=evaluableList.length-2; i>=0;i--) {
-				if (evaluableList[i].getReturnType()!=VariableType.NUM) {
-					throw new InterpreterException("Expected type NUM but got"+evaluableList[i].getReturnType());
+				if (evaluableList[i].getReturnType(variableNameList)!=VariableType.NUM) {
+					throw new InterpreterException("Expected type NUM but got"+evaluableList[i].getReturnType(variableNameList));
 				}
 				switch (operators[i]) {
 				case MULTIPLY:
@@ -147,7 +147,7 @@ public class Expression extends Evaluable{
 	}
 	//return type of value expected to be returned
 	@Override
-	public VariableType getReturnType() {
+	public VariableType getReturnType(HashMap<String, UserObjectValue> variableNameList) {
 		switch (operatorType) {
 		case BoolOperator:
 		case NumComparator:

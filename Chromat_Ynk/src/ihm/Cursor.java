@@ -2,6 +2,7 @@ package ihm;
 
 import java.util.Arrays;
 
+import interpreter.InterpreterException;
 import interpreter.UserObjectValue;
 import lexer.Command;
 import javafx.beans.property.BooleanProperty;
@@ -10,6 +11,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
 
@@ -21,6 +23,7 @@ public class Cursor {
     /** Rotation in degrees, 0 being UP and 90 is RIGHT */
     private DoubleProperty rotation = new SimpleDoubleProperty();
     private double pressure;
+    private Color color;
 
     public Cursor(double x, double y, Canvas canvas) {
         this.x.set(x);
@@ -30,6 +33,7 @@ public class Cursor {
         gc.setLineWidth(1);
         rotation.set(0);
         pressure = 1;
+        color = Color.BLACK;
     }
     // x accessors
     public double getX() {
@@ -140,14 +144,9 @@ public class Cursor {
         isVisible.set(true);
     }
 
-    // press
-    public void press(double value) {
-        this.pressure = value;
-    }
-
     // color
-    public void color(Paint color) {
-        gc.setStroke(color);
+    public void color() {
+       	gc.setStroke(new Color(color.getRed(),color.getGreen(),color.getBlue(),pressure));
     }
 
     // thick
@@ -179,24 +178,40 @@ public class Cursor {
     }
 
 
-    public void execCommand(Command c,UserObjectValue[] valueList) {
+    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
 		//System.out.println(c.toString()+" "+Arrays.toString(valueList));
 		String command = c.toString();
 
         if (command.equals("FWD")) {
-            fwd((double)valueList[0].getValue());
+            fwd(valueList[0].getDouble());
         }
         if (command.equals("BWD")) {
-            bwd((double)valueList[0].getValue());
+            bwd(valueList[0].getDouble());
         }
         if (command.equals("TURN")) {
-            turn((double)valueList[0].getValue());
+            turn(valueList[0].getDouble());
         }
         if (command.equals("MOV")) {
-            mov((double)valueList[0].getValue(),(double)valueList[1].getValue());
+            mov(valueList[0].getDouble(),valueList[1].getDouble());
         }
         if (command.equals("POS")) {
-            mov((double)valueList[0].getValue(),(double)valueList[1].getValue());
+            mov(valueList[0].getDouble(),valueList[1].getDouble());
+        }
+        if (command.equals("COLOR")) {
+        	if (valueList.length==3) {
+        		color=Color.rgb(valueList[0].getInt(),valueList[1].getInt(),valueList[2].getInt());
+        	} else {
+        		try {
+        			color=Color.web(valueList[0].getString());
+            	} catch (Exception e) {
+            		throw new InterpreterException("Unexpected web format"+valueList[0].getString());
+        		}
+        	}
+        	color();
+        }
+        if (command.equals("PRESS")) {
+        	pressure=valueList[0].getDouble();
+        	color();
         }
         if (command.equals("HIDE")) {
             hide();

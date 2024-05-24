@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public abstract class Evaluable {
 	public abstract Object eval(HashMap<String, UserObjectValue> variableNameList) throws InterpreterException;
-	public abstract VariableType getReturnType();
+	public abstract VariableType getReturnType(HashMap<String, UserObjectValue> variableNameList) throws InterpreterException;
 	//Construct Expression from str
 	public static Evaluable newEvaluable(String str, OperatorType operatorType) throws InterpreterException {
 	    //Split str with reg as separator but keep them in the split array
