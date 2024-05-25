@@ -2,6 +2,7 @@ package cursors;
 
 
 import ihm.CursorController;
+import interpreter.InterpreterException;
 import interpreter.UserObjectValue;
 import lexer.Command;
 import javafx.application.Platform;
@@ -215,5 +216,5 @@ public abstract class Cursor {
     }
 
 
-    public abstract void execCommand(Command c,UserObjectValue[] valueList);
+    public abstract void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException;
 }

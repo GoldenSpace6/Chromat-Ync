@@ -95,21 +95,20 @@ public class Interpreter {
     			} else {
     				//Create temporary Cursor
     				currentInstruction.setHasBeenExecuted();
-					if (args[0].getValue() instanceof Double) {
-						int idToMimic = ((Double)args[0].getValue()).intValue();
-						List<Cursor> toAdd = new ArrayList<>();
-						for(Cursor i: selectedCursor) {
-							if (i != null) {
-								toAdd.add(i);
-							}
+					int idToMimic = args[0].getInt();
+					List<Cursor> toAdd = new ArrayList<>();
+					for(Cursor i: selectedCursor) {
+						if (i != null) {
+							toAdd.add(i);
 						}
-						for(Cursor i: toAdd) {
-							cursorController.addCursorMimic(idToMimic, i);
-						}
-						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
-					//MIMIC the first cursor of the id given
-					//cursors.get((int) args[0].getValue()).add(new Cursor(cursors.get((int) args[0].getValue()).get(0)));
 					}
+					for(Cursor i: toAdd) {
+						cursorController.addCursorMimic(idToMimic, i);
+					}
+					selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
+					//MIMIC the first cursor of the id given
+					//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getInt()).get(0)));
+					
     				currentInstruction = currentInstruction.getConditionInstruction();
     			}
     		} else if (currentInstruction.getCommand()==Command.MIRROR) {
@@ -128,7 +127,7 @@ public class Interpreter {
 							}
 						}
 						for(Cursor i: toAdd) {
-							cursorController.addCursorMirrorCenter(i , (double) args[0].getValue(), (double) args[1].getValue());
+							cursorController.addCursorMirrorCenter(i ,args[0].getDouble(), args[1].getDouble());
 						}
 						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
 					} else {
@@ -139,7 +138,7 @@ public class Interpreter {
 							}
 						}
 						for(Cursor i: toAdd) {
-							cursorController.addCursorMirrorAxial(i , (double) args[0].getValue(), (double) args[1].getValue(), (double) args[2].getValue(), (double) args[3].getValue());
+							cursorController.addCursorMirrorAxial(i ,args[0].getDouble(), args[1].getDouble(), args[2].getDouble(), args[3].getDouble());
 						}
 						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
 					}
@@ -153,40 +152,34 @@ public class Interpreter {
 
     		switch (currentInstruction.getCommand()) {
 			case CURSOR: {
-				if (args[0].getValue() instanceof Double) {
-					int id = ((Double)args[0].getValue()).intValue();
-					if(cursors.containsKey(id)) {
-						return new InterpreterException("Cursor "+args[0].getInt()+" already exist");
-					} else if (id<0) {
-						outputDisplay(args[0].getValue()+" is an invalid id");
-					} else {
-						cursorController.addCursorNormal(id);
-						
-						//select the created cursor
-						selectedCursor=cursorController.getCursors().get(id);
-					}
+				int id = args[0].getInt();
+				if(cursors.containsKey(id)) {
+					return new InterpreterException("Cursor "+args[0].getInt()+" already exist");
+				} else if (id<0) {
+					outputDisplay(args[0].getInt()+" is an invalid id");
+				} else {
+					cursorController.addCursorNormal(id);
+					
+					//select the created cursor
+					selectedCursor=cursorController.getCursors().get(id);
 				}
 				break;
 			}
 			case SELECT: {
-				if (args[0].getValue() instanceof Double) {
-					int id = ((Double)args[0].getValue()).intValue();
-					if(cursors.containsKey(id)==false) {
-						return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
-					} else {
-						selectedCursor=cursors.get(id);
-					}
+				int id = args[0].getInt();
+				if(cursors.containsKey(id)==false) {
+					return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
+				} else {
+					selectedCursor=cursors.get(id);
 				}
 				break;
 			}
 			case REMOVE: {
-				if (args[0].getValue() instanceof Double) {
-					int id = ((Double)args[0].getValue()).intValue();
-					if(cursors.containsKey(id)==false) {
-						return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
-					} else {
-						cursors.remove(id);
-					}
+				int id = args[0].getInt();
+				if(cursors.containsKey(id)==false) {
+					return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
+				} else {
+					cursors.remove(id);
 				}
 				break;
 			}

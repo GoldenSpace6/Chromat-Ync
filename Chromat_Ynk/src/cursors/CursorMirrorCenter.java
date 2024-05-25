@@ -3,6 +3,7 @@ package cursors;
 import java.util.Arrays;
 
 import ihm.CursorController;
+import interpreter.InterpreterException;
 import interpreter.UserObjectValue;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
@@ -41,29 +42,29 @@ public class CursorMirrorCenter extends Cursor {
     }
 
 
-    public void execCommand(Command c,UserObjectValue[] valueList) {
+    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
 		System.out.println(c.toString()+" "+Arrays.toString(valueList));
 		String command = c.toString();
 
         switch (command) {
-            case "FWD":
-                fwd((double)valueList[0].getValue());  
-                break;
-            case "BWD":
-                bwd((double)valueList[0].getValue());
-                break;
-            case "TURN":
-                double turnValue = (double)valueList[0].getValue();
+	        case "FWD":
+	            fwd(valueList[0].getDouble());  
+	            break;
+	        case "BWD":
+	            bwd(valueList[0].getDouble());
+	            break;
+	        case "TURN":
+                double turnValue = valueList[0].getDouble();
                 turn(turnValue);
                 break;
             case "MOV":
-                double movValue1 = (double)valueList[0].getValue();
-                double movValue2 = (double)valueList[1].getValue();
+                double movValue1 = valueList[0].getDouble();
+                double movValue2 = valueList[1].getDouble();
                 mov(- movValue1, - movValue2);
                 break;
             case "POS":
-                double posValue1 = (double)valueList[0].getValue();
-                double posValue2 = (double)valueList[1].getValue();
+                double posValue1 = valueList[0].getDouble();
+                double posValue2 = valueList[1].getDouble();
                 pos(xCenter*2 - posValue1, yCenter*2 - posValue2);
                 break;
             case "HIDE":
@@ -74,41 +75,30 @@ public class CursorMirrorCenter extends Cursor {
                 break;
             case "PRESS":
                 if (valueList.length == 1) {
-                    press((Double)valueList[0].getValue());
+                    press(valueList[0].getDouble());
                 }
                 break;
             case "COLOR":
                 if (valueList.length == 1) {
-                    Color drawColorWEB = Color.web(valueList[0].getValue().toString(), pressure);
+                    Color drawColorWEB = Color.web(valueList[0].getString(), pressure);
                     color(drawColorWEB);
                 } else if (valueList.length == 3) {
-                    int red = 0;
-                    int green = 0;
-                    int blue = 0;
-                    if (valueList[0].getValue() instanceof Double) {
-                        red = ((Double) valueList[0].getValue()).intValue();
-                    }
-                    if (valueList[1].getValue() instanceof Double) {
-                        green = ((Double) valueList[1].getValue()).intValue();
-                    }
-                    if (valueList[2].getValue() instanceof Double) {
-                        blue = ((Double) valueList[2].getValue()).intValue();
-                    }
-                    Color drawColorRGB = Color.rgb(red, green, blue, pressure);
+                    int red = valueList[0].getInt();
+                    int green = valueList[1].getInt();
+                    int blue = valueList[2].getInt();
+                    Color drawColorRGB = Color.rgb(red, green, blue);
                     color(drawColorRGB);
                 }
                 break;
             case "THICK":
-                thick((double)valueList[0].getValue());
+                thick(valueList[0].getDouble());
                 break;
             case "LOOKAT":
                 if (valueList.length == 1) {
-                    if (valueList[0].getValue() instanceof Double) {
-                        int id = ((Double) valueList[0].getValue()).intValue();
-                        lookAtCursor(id);
-                    }
+                	int id = valueList[0].getInt();
+                	lookAtCursor(id);
                 } else if (valueList.length == 2) {
-                    lookAtPos((double)valueList[0].getValue(), (double)valueList[1].getValue());
+                    lookAtPos(valueList[0].getDouble(), valueList[1].getDouble());
                 }
                 break;
             default:

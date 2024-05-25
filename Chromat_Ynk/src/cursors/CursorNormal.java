@@ -1,6 +1,7 @@
 package cursors;
 
 import ihm.CursorController;
+import interpreter.InterpreterException;
 import interpreter.UserObjectValue;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
@@ -28,24 +29,24 @@ public class CursorNormal extends Cursor {
     }
 
 
-    public void execCommand(Command c,UserObjectValue[] valueList) {
+    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
 		String command = c.toString();
 
         switch (command) {
             case "FWD":
-                fwd((double)valueList[0].getValue());  
+                fwd(valueList[0].getDouble());  
                 break;
             case "BWD":
-                bwd((double)valueList[0].getValue());
+                bwd(valueList[0].getDouble());
                 break;
             case "TURN":
-                turn((double)valueList[0].getValue());
+                turn(valueList[0].getDouble());
                 break;
             case "MOV":
-                mov((double)valueList[0].getValue(),(double)valueList[1].getValue());
+                mov(valueList[0].getDouble(),valueList[1].getDouble());
                 break;
             case "POS":
-                pos((double)valueList[0].getValue(),(double)valueList[1].getValue());
+                pos(valueList[0].getDouble(),valueList[1].getDouble());
                 break;
             case "HIDE":
                 hide();
@@ -55,41 +56,30 @@ public class CursorNormal extends Cursor {
                 break;
             case "PRESS":
                 if (valueList.length == 1) {
-                    press((Double)valueList[0].getValue());
+                    press(valueList[0].getDouble());
                 }
                 break;
             case "COLOR":
                 if (valueList.length == 1) {
-                    Color drawColorWEB = Color.web(valueList[0].getValue().toString(), pressure);
+                    Color drawColorWEB = Color.web(valueList[0].getString(), pressure);
                     color(drawColorWEB);
                 } else if (valueList.length == 3) {
-                    int red = 0;
-                    int green = 0;
-                    int blue = 0;
-                    if (valueList[0].getValue() instanceof Double) {
-                        red = ((Double) valueList[0].getValue()).intValue();
-                    }
-                    if (valueList[1].getValue() instanceof Double) {
-                        green = ((Double) valueList[1].getValue()).intValue();
-                    }
-                    if (valueList[2].getValue() instanceof Double) {
-                        blue = ((Double) valueList[2].getValue()).intValue();
-                    }
-                    Color drawColorRGB = Color.rgb(red, green, blue, pressure);
+                    int red = valueList[0].getInt();
+                    int green = valueList[1].getInt();
+                    int blue = valueList[2].getInt();
+                    Color drawColorRGB = Color.rgb(red, green, blue);
                     color(drawColorRGB);
                 }
                 break;
             case "THICK":
-                thick((double)valueList[0].getValue());
+                thick(valueList[0].getDouble());
                 break;
             case "LOOKAT":
                 if (valueList.length == 1) {
-                    if (valueList[0].getValue() instanceof Double) {
-                        int id = ((Double) valueList[0].getValue()).intValue();
-                        lookAtCursor(id);
-                    }
+                	int id = valueList[0].getInt();
+                	lookAtCursor(id);
                 } else if (valueList.length == 2) {
-                    lookAtPos((double)valueList[0].getValue(), (double)valueList[1].getValue());
+                    lookAtPos(valueList[0].getDouble(), valueList[1].getDouble());
                 }
                 break;
             default:
