@@ -10,12 +10,14 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public abstract class Cursor {
     protected int id;
     protected GraphicsContext gc;
+    protected Canvas canvas;
     protected CursorController cursorController;
     protected Cursor fatherCursor;
 
@@ -125,28 +127,14 @@ public abstract class Cursor {
     }
 
     // turn
-    public void turn(double value) {
-        Platform.runLater(() -> {
-            rotation.set(rotation.get() + value);
-            rotation.set(rotation.get() % 360);
-        });
-    }
+    public abstract void turn(double value);
 
     // mov
-    public void mov(double x, double y) {
-        Platform.runLater(() -> {
-            this.x.set(this.x.get() + x);
-            this.y.set(this.y.get() + y);
-        });
-    }
+    public abstract void mov(double x, double y);
+    
 
     // pos
-    public void pos(double x, double y) {
-        Platform.runLater(() -> {
-            this.x.set(x);
-            this.y.set(y);
-        });
-    }
+    public abstract void pos(double x, double y);
 
     // hide
     public void hide() {
@@ -184,16 +172,13 @@ public abstract class Cursor {
     }
 
     // lookAtCursor
-    public void lookAtCursor(int id) {
-        Platform.runLater(() -> {
-            double xPos = cursorController.getCursors().get(id).get(0).getX();
-            double yPos = cursorController.getCursors().get(id).get(0).getY();
-            lookAtPos(xPos, yPos);
-        });
-    }
-
+    public abstract void lookAtCursor(int id);
+    
     // lookAtPos
-    public void lookAtPos(double xPos, double yPos) {
+    public abstract void lookAtPos(double xPos, double yPos);
+
+    // look at specific coordinates
+    public void lookAt(double xPos, double yPos) {
         Platform.runLater(() -> {
             double xCursor = x.get();
             double yCursor = y.get();
@@ -214,7 +199,101 @@ public abstract class Cursor {
             rotation.set(rotation.get() % 360);
         });
     }
+    
 
 
-    public abstract void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException;
+    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
+		String command = c.toString();
+
+        switch (command) {
+            case "FWD":
+                Double valueFwd = valueList[0].getDouble();
+                if (valueList[0].getIsPercentage()) {
+                    valueFwd = valueFwd/100 * Math.max(canvas.getWidth(), canvas.getHeight());
+                }
+                fwd(valueFwd);  
+                break;
+            case "BWD":
+                Double valueBwd = valueList[0].getDouble();
+                if (valueList[0].getIsPercentage()) {
+                    valueBwd = valueBwd/100 * Math.max(canvas.getWidth(), canvas.getHeight());
+                }
+                bwd(valueBwd);
+                break;
+            case "TURN":
+                turn(valueList[0].getDouble());
+                break;
+            case "MOV":
+                Double valueMov1 = valueList[0].getDouble();
+                Double valueMov2 = valueList[1].getDouble();
+                if (valueList[0].getIsPercentage()) {
+                    valueMov1 = valueMov1/100 * canvas.getWidth();
+                }
+                if (valueList[1].getIsPercentage()) {
+                    valueMov2 = valueMov2/100 * canvas.getHeight();
+                }
+                mov(valueMov1,valueMov2);
+                break;
+            case "POS":
+                Double valuePos1 = valueList[0].getDouble();
+                Double valuePos2 = valueList[1].getDouble();
+                if (valueList[0].getIsPercentage()) {
+                    valuePos1 = valuePos1/100 * canvas.getWidth();
+                }
+                if (valueList[1].getIsPercentage()) {
+                    valuePos2 = valuePos2/100 * canvas.getHeight();
+                }
+                mov(valuePos1,valuePos2);
+                pos(valuePos1,valuePos2);
+                break;
+            case "HIDE":
+                hide();
+                break;
+            case "SHOW":
+                show();
+                break;
+            case "PRESS":
+                Double valuePress = valueList[0].getDouble();
+                if (valueList[0].getIsPercentage()) {
+                    valuePress = valuePress/100;
+                }
+                if (valueList.length == 1) {
+                    press(valuePress);
+                }
+                break;
+            case "COLOR":
+                if (valueList.length == 1) {
+                    Color drawColorWEB = Color.web(valueList[0].getString());
+                    color(drawColorWEB);
+                } else if (valueList.length == 3) {
+                    int red = valueList[0].getInt();
+                    int green = valueList[1].getInt();
+                    int blue = valueList[2].getInt();
+                    Color drawColorRGB = Color.rgb(red, green, blue);
+                    color(drawColorRGB);
+                }
+                break;
+            case "THICK":
+                thick(valueList[0].getDouble());
+                break;
+            case "LOOKAT":
+                if (valueList.length == 1) {
+                	int id = valueList[0].getInt();
+                	lookAtCursor(id);
+                } else if (valueList.length == 2) {
+                    Double valueLookAt1 = valueList[0].getDouble();
+                    Double valueLookAt2 = valueList[1].getDouble();
+                    if (valueList[0].getIsPercentage()) {
+                        valueLookAt1 = valueLookAt1/100 * canvas.getWidth();
+                    }
+                    if (valueList[1].getIsPercentage()) {
+                        valueLookAt2 = valueLookAt2/100 * canvas.getHeight();
+                    }
+                    lookAtPos(valueLookAt1, valueLookAt2);
+                }
+                break;
+            default:
+                break;
+        }
+	}
 }

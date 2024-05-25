@@ -165,7 +165,7 @@ public class ChromatYnc {
      * @param 
      */
     public void nextInstruction() {
-        if (interpreter != null) {
+        if (interpreter != null && interpreter.getCurrentInstruction() != null) {
             try {
                 Exception exception = interpreter.nextStep();
                 if (exception != null) {

@@ -64,7 +64,7 @@ public class Interpreter {
 	        	for(int i=0;i<j.length;i++) {
 	        		//create a Evaluable and eval it to directly get its value;
 					try {
-	        			UserObjectValue t = new UserObjectValue(Evaluable.newEvaluable(currentInstruction.getArgs()[i],j[i]).eval(vars),j[i]);
+	        			UserObjectValue t = new UserObjectValue(Evaluable.newEvaluable(currentInstruction.getArgs()[i],j[i]).eval(vars),j[i], currentInstruction.getArgs()[i]);
 						args[i] = t;
 					} catch (Exception e) {
 						return e;

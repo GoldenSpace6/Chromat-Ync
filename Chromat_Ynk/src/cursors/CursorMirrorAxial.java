@@ -1,15 +1,10 @@
 package cursors;
 
-import java.util.Arrays;
-
 import ihm.CursorController;
-import interpreter.InterpreterException;
-import interpreter.UserObjectValue;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
-import lexer.Command;
 
 public class CursorMirrorAxial extends Cursor {
     // Axial coordinates
@@ -25,8 +20,8 @@ public class CursorMirrorAxial extends Cursor {
             this.x2 = x2;
             this.y2 = y2;
             this.fatherCursor = fatherCursor;
-            initPos();
-            initRotation();
+            mirrorPos(fatherCursor.getX(), fatherCursor.getY());    // initiate position
+            initRotation();                                         // initiate rotation 
             gc = canvas.getGraphicsContext2D();
             gc.setLineCap(StrokeLineCap.SQUARE);
             gc.setLineWidth(1);
@@ -37,20 +32,22 @@ public class CursorMirrorAxial extends Cursor {
         });
     }
 
-    public void initPos() {
-        double xFather = fatherCursor.getX();
-        double yFather = fatherCursor.getY();
-        mirrorPos(xFather, yFather);
+    public void mirrorPos(double xFather, double yFather) {      
+        double[] pos = getMirrorPos(xFather, yFather);       
+        x.set(pos[0]);
+        y.set(pos[1]);
     }
 
-    public void mirrorPos(double xFather, double yFather) {      
-        // axe line equation : ax + bx +c = 0
+    public double[] getMirrorPos(double x, double y) {
+        double[] pos = new double[2];
         double a = y2 - y1;
         double b = x1 - x2;
         double c = x2*y1 - x1*y2;
-        
-        x.set(xFather - (2*a*(a*xFather + b*yFather + c)/ (a*a +b*b) ));
-        y.set(yFather - (2*b*(a*xFather + b*yFather + c)/ (a*a +b*b) ));
+
+        pos[0] = x - (2*a*(a*x + b*y + c)/ (a*a +b*b) );
+        pos[1] = y - (2*b*(a*x + b*y + c)/ (a*a +b*b) );
+
+        return pos;
     }
 
     public void initRotation() {
@@ -76,66 +73,40 @@ public class CursorMirrorAxial extends Cursor {
         setRotation(newRotation);
     }
 
+    // mirror axial turn
+    public void turn(double value) {
+        Platform.runLater(() -> {
+            rotation.set(rotation.get() - value);
+            rotation.set(rotation.get() % 360);
+        });
+    }
 
-    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
-		System.out.println(c.toString()+" "+Arrays.toString(valueList));
-		String command = c.toString();
+    // mirror axial mov
+    public void mov(double x, double y) {
+        Platform.runLater(() -> {
+            mirrorPos(this.x.get() + x, this.y.get() + y);
+        });
+    }
 
-        switch (command) {
-            case "FWD":
-                fwd(valueList[0].getDouble());  
-                break;
-            case "BWD":
-                bwd(valueList[0].getDouble());
-                break;
-            case "TURN":
-                double turnValue = valueList[0].getDouble();
-                turn(- turnValue);
-                break;
-            case "MOV":
-                double movValue1 = valueList[0].getDouble();
-                double movValue2 = valueList[1].getDouble();
-                mov(- movValue1, - movValue2);
-                break;
-            case "POS":
-                mirrorPos(valueList[0].getDouble(),valueList[1].getDouble());
-                break;
-            case "HIDE":
-                hide();
-                break;
-            case "SHOW":
-                show();
-                break;
-            case "PRESS":
-                if (valueList.length == 1) {
-                    press(valueList[0].getDouble());
-                }
-                break;
-            case "COLOR":
-                if (valueList.length == 1) {
-                    Color drawColorWEB = Color.web(valueList[0].getString(), pressure);
-                    color(drawColorWEB);
-                } else if (valueList.length == 3) {
-                    int red = valueList[0].getInt();
-                    int green = valueList[1].getInt();
-                    int blue = valueList[2].getInt();
-                    Color drawColorRGB = Color.rgb(red, green, blue);
-                    color(drawColorRGB);
-                }
-                break;
-            case "THICK":
-                thick(valueList[0].getDouble());
-                break;
-            case "LOOKAT":
-                if (valueList.length == 1) {
-                	int id = valueList[0].getInt();
-                    lookAtCursor(id);
-                } else if (valueList.length == 2) {
-                    lookAtPos(valueList[0].getDouble(), valueList[1].getDouble());
-                }
-                break;
-            default:
-                break;
-        }
-	}
+    // mirror axial pos
+    public void pos(double x, double y) {
+        Platform.runLater(() -> {
+            mirrorPos(x, y);
+        });
+    }
+
+    // mirror axial lookAtCursor
+    public void lookAtCursor(int id) {
+        double xPos = cursorController.getCursors().get(id).get(0).getX();
+        double yPos = cursorController.getCursors().get(id).get(0).getY();
+        double[] pos = getMirrorPos(xPos, yPos);
+        lookAt(pos[0], pos[1]);
+    }
+
+    // mirror axial lookAtPos
+    public void lookAtPos(double xPos, double yPos) {
+        double[] pos = getMirrorPos(xPos, yPos);
+        lookAt(pos[0], pos[1]);
+    }
+
 }

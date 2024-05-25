@@ -1,15 +1,10 @@
 package cursors;
 
-import java.util.Arrays;
-
 import ihm.CursorController;
-import interpreter.InterpreterException;
-import interpreter.UserObjectValue;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
-import lexer.Command;
 
 public class CursorMirrorCenter extends Cursor {
     // Axial coordinates
@@ -35,74 +30,52 @@ public class CursorMirrorCenter extends Cursor {
     }
 
     public void initRotation() {
-        System.out.println("init rotation");
         double rotationFather = fatherCursor.getRotation();
         setRotation((rotationFather+180.0)%360.0); // rotate 180°
-        System.out.println("finish init rotation");
     }
 
+    public double[] getMirrorPos(double x, double y) {
+        double[] pos = new double[2];
+        pos[0] = xCenter*2 - x;
+        pos[1] = yCenter*2 - y;
+        return pos;
+    }
+    // normal turn
+    public void turn(double value) {
+        Platform.runLater(() -> {
+            rotation.set(rotation.get() + value);
+            rotation.set(rotation.get() % 360);
+        });
+    }
 
-    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
-		System.out.println(c.toString()+" "+Arrays.toString(valueList));
-		String command = c.toString();
+    // mirror center mov
+    public void mov(double x, double y) {
+        Platform.runLater(() -> {
+            this.x.set(this.x.get() - x);
+            this.y.set(this.y.get() - y);
+        });
+    }
 
-        switch (command) {
-	        case "FWD":
-	            fwd(valueList[0].getDouble());  
-	            break;
-	        case "BWD":
-	            bwd(valueList[0].getDouble());
-	            break;
-	        case "TURN":
-                double turnValue = valueList[0].getDouble();
-                turn(turnValue);
-                break;
-            case "MOV":
-                double movValue1 = valueList[0].getDouble();
-                double movValue2 = valueList[1].getDouble();
-                mov(- movValue1, - movValue2);
-                break;
-            case "POS":
-                double posValue1 = valueList[0].getDouble();
-                double posValue2 = valueList[1].getDouble();
-                pos(xCenter*2 - posValue1, yCenter*2 - posValue2);
-                break;
-            case "HIDE":
-                hide();
-                break;
-            case "SHOW":
-                show();
-                break;
-            case "PRESS":
-                if (valueList.length == 1) {
-                    press(valueList[0].getDouble());
-                }
-                break;
-            case "COLOR":
-                if (valueList.length == 1) {
-                    Color drawColorWEB = Color.web(valueList[0].getString(), pressure);
-                    color(drawColorWEB);
-                } else if (valueList.length == 3) {
-                    int red = valueList[0].getInt();
-                    int green = valueList[1].getInt();
-                    int blue = valueList[2].getInt();
-                    Color drawColorRGB = Color.rgb(red, green, blue);
-                    color(drawColorRGB);
-                }
-                break;
-            case "THICK":
-                thick(valueList[0].getDouble());
-                break;
-            case "LOOKAT":
-                if (valueList.length == 1) {
-                	int id = valueList[0].getInt();
-                	lookAtCursor(id);
-                } else if (valueList.length == 2) {
-                    lookAtPos(valueList[0].getDouble(), valueList[1].getDouble());
-                }
-                break;
-            default:
-                break;
-        }
-	}
+    // mirror center pos
+    public void pos(double x, double y) {
+        Platform.runLater(() -> {
+            this.x.set(xCenter*2 - x);
+            this.y.set(yCenter*2 - y);
+        });
+    }
+
+    // mirror axial lookAtCursor
+    public void lookAtCursor(int id) {
+        double xPos = cursorController.getCursors().get(id).get(0).getX();
+        double yPos = cursorController.getCursors().get(id).get(0).getY();
+        double[] pos = getMirrorPos(xPos, yPos);
+        lookAt(pos[0], pos[1]);
+    }
+
+    // mirror axial lookAtPos
+    public void lookAtPos(double xPos, double yPos) {
+        double[] pos = getMirrorPos(xPos, yPos);
+        lookAt(pos[0], pos[1]);
+    }
+
 }
