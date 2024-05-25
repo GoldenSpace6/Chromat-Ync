@@ -1,6 +1,5 @@
 package cursors;
 
-
 import ihm.CursorController;
 import interpreter.UserObjectValue;
 import javafx.application.Platform;
