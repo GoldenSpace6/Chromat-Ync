@@ -206,9 +206,10 @@ public class Interpreter {
 				if(UserObjectValue.isAVariable(varName)==false) {
 	    			return new InterpreterException("Variable "+varName+"is not a valide variable, variable can only contains letters.");
 				}
+				//convert from enum Command to enum VariableType
 	    		VariableType currentCommand = VariableType.valueOf(currentInstruction.getCommand().toString());
-	    		if(vars.containsKey(varName) && vars.get(varName).getReturnType()!=currentCommand) {
-	    			return new InterpreterException("cannot change type from "+vars.get(varName).getReturnType()+" to "+currentCommand);
+	    		if(vars.containsKey(varName) && vars.get(varName).getReturnType(vars)!=currentCommand) {
+	    			return new InterpreterException("cannot change type from "+vars.get(varName).getReturnType(vars)+" to "+currentCommand);
 	    		}
     			vars.put(varName,args[1]);
     			break;

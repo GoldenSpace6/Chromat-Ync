@@ -121,12 +121,12 @@ public class Parser {
 					//FROM value was given
 					ret.setArgs(new String[]{tempArgs[0],tempArgs[1]});
 					//create while
-					ret.setNextInstruction(new InstructionNode(Command.WHILE, new String[]{tempArgs[0],tempArgs[2]}));
+					ret.setNextInstruction(new InstructionNode(Command.WHILE, new String[]{tempArgs[0]+"<"+tempArgs[2]}));
 				} else {
 					//FROM value was not given
 					ret.setArgs(new String[]{tempArgs[0],"0"});
 					//create while
-					ret.setNextInstruction(new InstructionNode(Command.WHILE, new String[]{tempArgs[0],tempArgs[1]}));
+					ret.setNextInstruction(new InstructionNode(Command.WHILE, new String[]{tempArgs[0]+"<"+tempArgs[1]}));
 				}
 				ret.setConditionInstruction(null);
 				ret = ret.getNextInstruction();

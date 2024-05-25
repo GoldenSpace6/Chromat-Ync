@@ -59,7 +59,13 @@ public class UserObjectValue extends Evaluable {
 		throw new InterpreterException("is not type STR or VAR");
 	}
 	//----
-	public VariableType getReturnType() {
+	public VariableType getReturnType(HashMap<String, UserObjectValue> variableNameList) throws InterpreterException {
+		if(type==VariableType.VAR) {
+			if(variableNameList.containsKey((String) value)==false) {
+				throw new InterpreterException("Variable "+value+" doesn't exist");
+    		}
+			return variableNameList.get(value).getReturnType(variableNameList);
+		}
 		return type;
 	}
 	//return true if str represent a Boolean
