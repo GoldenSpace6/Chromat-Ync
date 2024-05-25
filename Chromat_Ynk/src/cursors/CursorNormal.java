@@ -31,7 +31,6 @@ public class CursorNormal extends Cursor {
 
 
     public void execCommand(Command c,UserObjectValue[] valueList) {
-		System.out.println(c.toString()+" "+Arrays.toString(valueList));
 		String command = c.toString();
 
         switch (command) {

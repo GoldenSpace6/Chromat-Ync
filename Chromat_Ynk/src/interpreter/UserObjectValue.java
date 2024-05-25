@@ -7,7 +7,6 @@ public class UserObjectValue extends Evaluable {
 	private VariableType type;
 	private Object value;
 	public UserObjectValue(String str, VariableType variableType) throws InterpreterException {
-		System.out.println(str);
 		type=variableType;
 		if(isANumber(str) && variableType==VariableType.NUM) {
 			value=Double.valueOf(str);		
