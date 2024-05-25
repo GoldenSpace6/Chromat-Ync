@@ -170,7 +170,7 @@ public class ChromatYnc {
                 Exception exception = interpreter.nextStep();
                 if (exception != null) {
                     if (stopWhenException.get()) {
-                        errorOutputDisplay( exception.getMessage() + ". (at " + interpreter.getCurrentInstruction().toString() + ")");
+                        errorOutputDisplay( exception.getMessage() + ". (at : " + interpreter.getCurrentInstruction().toString() + ")");
                         if (exception instanceof InterpreterException) {
                             throw (InterpreterException) exception;
                         }
@@ -178,7 +178,7 @@ public class ChromatYnc {
                             throw (IllegalArgumentException) exception;
                         }
                     } else {
-                        errorOutputDisplay( exception.getMessage() + ". (at " + interpreter.getCurrentInstruction().toString() + ")");
+                        errorOutputDisplay( exception.getMessage() + ". (skipped : " + interpreter.getCurrentInstruction().toString() + " : skipped)");
                         interpreter.setNextCurrentInstruction();	
                     }
                 }

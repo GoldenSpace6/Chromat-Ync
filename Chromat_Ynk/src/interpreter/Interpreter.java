@@ -250,7 +250,7 @@ public class Interpreter {
     		exception = nextStep();
 			if (exception != null) {
 				if (stopWhenException.get()) {
-					errorOutputDisplay( exception.getMessage() + ". (at " + currentInstruction.toString() + ")");
+					errorOutputDisplay( exception.getMessage() + ". (at : " + currentInstruction.toString() + ")");
 					if (exception instanceof InterpreterException) {
 						throw (InterpreterException) exception;
 					}
@@ -258,7 +258,7 @@ public class Interpreter {
 						throw (IllegalArgumentException) exception;
 					}
 				} else {
-					errorOutputDisplay( exception.getMessage() + ". (at " + currentInstruction.toString() + ")");
+					errorOutputDisplay( exception.getMessage() + ". (skipped : " + currentInstruction.toString() + ")");
 					currentInstruction = currentInstruction.getNextInstruction();	
 				}
 			}
