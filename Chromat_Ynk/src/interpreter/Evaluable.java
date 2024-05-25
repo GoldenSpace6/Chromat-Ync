@@ -21,7 +21,7 @@ public abstract class Evaluable {
 			reg="==|<|<=|>|>=";
 			break;
 		case NumAdder:
-			reg="\\+|\\-";
+			reg="\\+|-";
 			break;
 		case NumMultiplier:
 			reg="\\*|\\/";
@@ -29,7 +29,12 @@ public abstract class Evaluable {
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + operatorType);
 		}
+		//split the empty String before and after reg
 	    String[] expressionArray = str.split("((?="+reg+")|(?<="+reg+"))");
+	    if(operatorType==OperatorType.NumAdder) {
+	    	//only split "-" character if it follows a alphanumeric character
+	    	expressionArray = str.split("(?=-)(?<=[A-Za-z0-9])|(?<=([A-Za-z0-9]-)|\\+)|(?=\\+)");
+	    }
 	    if(expressionArray.length==1) {
 		    switch (operatorType) {
 			case BoolOperator:
