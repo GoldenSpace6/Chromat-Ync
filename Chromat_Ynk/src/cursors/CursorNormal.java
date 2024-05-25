@@ -1,6 +1,5 @@
 package cursors;
 
-import java.util.Arrays;
 
 import ihm.CursorController;
 import interpreter.UserObjectValue;
