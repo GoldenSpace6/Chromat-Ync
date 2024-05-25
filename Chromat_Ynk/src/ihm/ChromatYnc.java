@@ -15,6 +15,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import interpreter.Interpreter;
+import interpreter.InterpreterException;
 
 /**
  * ChromatYnc is the abstraction class of the application with a PAC model
@@ -151,7 +152,11 @@ public class ChromatYnc {
 
     public void executeContinuesly() {
         if (interpreter != null) {
-            interpreter.executeAll();
+            try {
+                interpreter.executeAll();
+            } catch (InterpreterException e) {
+                //
+		    }
         }
     }
 
@@ -161,8 +166,25 @@ public class ChromatYnc {
      */
     public void nextInstruction() {
         if (interpreter != null) {
-            interpreter.nextStep();
-            outputDisplay("displaying next frame");
+            try {
+                Exception exception = interpreter.nextStep();
+                if (exception != null) {
+                    if (stopWhenException.get()) {
+                        errorOutputDisplay( exception.getMessage() + ". (at " + interpreter.getCurrentInstruction().toString() + ")");
+                        if (exception instanceof InterpreterException) {
+                            throw (InterpreterException) exception;
+                        }
+                        if (exception instanceof IllegalArgumentException) {
+                            throw (IllegalArgumentException) exception;
+                        }
+                    } else {
+                        errorOutputDisplay( exception.getMessage() + ". (at " + interpreter.getCurrentInstruction().toString() + ")");
+                        interpreter.setNextCurrentInstruction();	
+                    }
+                }
+            } catch (InterpreterException e) {
+                errorOutputDisplay(e.getMessage());
+            }
         }
     }
 
@@ -177,6 +199,14 @@ public class ChromatYnc {
 
         setOutput("[" + objSDF.format(objDate) + "] : " + text);
         System.out.println("Output : " + text);
+    }
+
+    public void errorOutputDisplay(String text) {
+        Date objDate = new Date();
+        SimpleDateFormat objSDF = new SimpleDateFormat("HH:mm:ss");
+
+        setOutput("[" + objSDF.format(objDate) + "] : ERROR : " + text);
+        System.err.println("Output : " + text);
     }
 
 

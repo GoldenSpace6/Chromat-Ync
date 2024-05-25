@@ -32,6 +32,7 @@ public class Parser {
 		}
 	}
 	public Instruction toInstruction (String[] words) {
+		System.out.print(words[0] + " ");
 		Instruction instruction = new Instruction(Command.valueOf(words[0]), Arrays.copyOfRange(words,1,words.length));
 		return instruction;
 	}
@@ -79,7 +80,7 @@ public class Parser {
 		this.prevList.clear();
 		//------
 		
-		if (instructions[ci].getCommand() != Command.IF && instructions[ci].getCommand() != Command.FOR && instructions[ci].getCommand() != Command.WHILE) {// != {FOR,WHILE}
+		if (instructions[ci].getCommand().isInstructionBlock()==false ) {// != {FOR,WHILE}
 			ret.setConditionInstruction(null);
 			ci++;
 			//save the last instruction in prevList to know where to go afterward
@@ -96,14 +97,11 @@ public class Parser {
 			if(instructions[ci].getCommand() != Command.FOR)  {
 				Command tempcommand = instructions[ci].getCommand();
 
-
-				ret.setArgs(instructions[ci].getArgs());
-				ret.setCommand(Command.IF);
 				ci++;
 				this.prevConditionInstruction = ret;
 				parserRec();
-				//all inside instruction must link back to "while"
-				if(tempcommand == Command.WHILE) { 
+				//all inside instruction must link back to WHILE MIMIR or MIRROR
+				if(tempcommand != Command.IF) {
 					for(InstructionNode j : this.prevList) {
 						j.setNextInstruction(ret);
 					}
@@ -114,44 +112,54 @@ public class Parser {
 				this.prevList.add(ret);
 				parserRec();
 				return;
-			}
-			/*if(instructions[ci].command == "FOR") {
+			} else {
 				//turn for loop into while loop
 				//create variable
-				ret.command = "NUM";
-				ret.args = [instructions[ci].args[0],instructions[ci].args[1]];
-				ret.nextInstruction = InstructionNode();
-	
-				//create while
-				ret = ret.nextInstruction;
-				ret.command = "IF";
-				ret.args = magic(instructions[ci].args[0]+"<"+instructions[ci].args[2]);
-				temp = instructions[ci].args;
-				
+				String[] tempArgs=instructions[ci].getArgs();
+				ret.setCommand(Command.NUM);
+				if(tempArgs.length>=3) {
+					//FROM value was given
+					ret.setArgs(new String[]{tempArgs[0],tempArgs[1]});
+					//create while
+					ret.setNextInstruction(new InstructionNode(Command.WHILE, new String[]{tempArgs[0],tempArgs[2]}));
+				} else {
+					//FROM value was not given
+					ret.setArgs(new String[]{tempArgs[0],"0"});
+					//create while
+					ret.setNextInstruction(new InstructionNode(Command.WHILE, new String[]{tempArgs[0],tempArgs[1]}));
+				}
+				ret.setConditionInstruction(null);
+				ret = ret.getNextInstruction();
+						
 				ci++;
 				this.prevConditionInstruction = ret;
 				parserRec();
-	
-				//create incrementation;
-				adder = InstructionNode();
-				adder.command = "AFFECT";
-				adder.args = magic2(temp[0]+"="+temp[0]+"+"+temp[3]);
-	
-				//all inside instruction must link back to "while"
-				for(InstructionNode j:this.prevList) {
-					j.nextInstruction = adder;
-				}
-				adder.nextInstruction = ret
-				rm = indentaion();
-				rm.command = "DEL";
-				rm.args = temp[0];
-				ret.nextInstruction = rm;
 				
-				//
-				this.prevList = [rm];
+				
+				//create incrementation;
+				InstructionNode adder;
+				if(tempArgs.length==4) {
+					adder = new InstructionNode(Command.NUM, new String[]{tempArgs[0],tempArgs[0]+"+"+tempArgs[3]});
+				} else {
+					adder = new InstructionNode(Command.NUM, new String[]{tempArgs[0],tempArgs[0]+"+1"});
+					
+				}
+
+				//all inside instruction must link back to adder
+				for(InstructionNode j : this.prevList) {
+					j.setNextInstruction(adder);
+				}
+				this.prevList.clear();
+				
+				adder.setNextInstruction(ret);
+				
+				//create DEL instruction
+				ret.setNextInstruction(new InstructionNode(Command.DEL, new String[]{tempArgs[0]}));
+				
+				this.prevList.add(ret);
 				parserRec();
-				return 0;
-			}*/
+				return;
+			}
 		}
 	}
 	public InstructionNode getStartInstruction() {

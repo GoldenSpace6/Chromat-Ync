@@ -73,6 +73,7 @@ public class IHMChromatYnc extends Application {
         ToggleGroup toggleGroup = new ToggleGroup();
         RadioMenuItem continuousItem = new RadioMenuItem("Continuous");
         continuousItem.setToggleGroup(toggleGroup);
+        continuousItem.setSelected(true);
         RadioMenuItem stepByStepItem = new RadioMenuItem("Step by step");
         stepByStepItem.setToggleGroup(toggleGroup);
         Menu setDelayMenu = new Menu("Delay between instructions (in s)");

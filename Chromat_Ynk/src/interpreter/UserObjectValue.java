@@ -6,7 +6,8 @@ import java.util.HashMap;
 public class UserObjectValue extends Evaluable {
 	private VariableType type;
 	private Object value;
-	public UserObjectValue(String str, VariableType variableType) {
+	public UserObjectValue(String str, VariableType variableType) throws InterpreterException {
+		System.out.println(str);
 		type=variableType;
 		if(isANumber(str) && variableType==VariableType.NUM) {
 			value=Double.valueOf(str);		
@@ -17,12 +18,14 @@ public class UserObjectValue extends Evaluable {
 			//remove quote at start and end of string
 			value=str.replaceAll("STR", "");//temporary
 			//value=str.replaceAll("\"|'", "");
+		} else if(isAVariable(str) && variableType==VariableType.VAR) {
+			type=VariableType.STR;
+			value=str;
 		} else if(isAVariable(str)) {//&& variableType==VariableType.VAR
 			type=VariableType.VAR;
 			value=str;
 		} else {
-			System.out.println("Expected Variable or Value but got "+str+" with type "+variableType);
-			//throw "Expected Variable or Value but got"+str 
+			throw new InterpreterException("Expected Variable or Value but got "+str+" with type "+variableType);
 		}
 	}
 	public UserObjectValue(Object value, VariableType variableType) {
@@ -39,6 +42,24 @@ public class UserObjectValue extends Evaluable {
 			throw new IllegalArgumentException("Unexpected value: " + type);
 		}
 	}
+	//get specific type ----
+	public double getDouble() throws InterpreterException {
+		if(type==VariableType.NUM) {return (double) value;}
+		throw new InterpreterException("is not type NUM");
+	}
+	public int getInt() throws InterpreterException {
+		if(type==VariableType.NUM) {return (int) Math.round((double) value);}
+		throw new InterpreterException("is not type NUM");
+	}
+	public boolean getBoolean() throws InterpreterException {
+		if(type==VariableType.BOOL) {return (boolean) value;}
+		throw new InterpreterException("is not type BOOL");
+	}
+	public String getString() throws InterpreterException {
+		if(type==VariableType.STR || type==VariableType.VAR) {return (String) value;}
+		throw new InterpreterException("is not type STR or VAR");
+	}
+	//----
 	public VariableType getReturnType() {
 		return type;
 	}
@@ -62,7 +83,7 @@ public class UserObjectValue extends Evaluable {
 	}
 	//return true if str represent a Variable
 	public static boolean isAVariable(String s) {
-		//Variable are only made of letter
+		//Variable can only contains letters
 		return s.matches("^[a-zA-Z]*$");
 	}
 	@Override
@@ -71,12 +92,10 @@ public class UserObjectValue extends Evaluable {
 	}
 	//evaluate the value depending on the variables given
 	@Override
-	public Object eval(HashMap<String, UserObjectValue> variableNameList) {
+	public Object eval(HashMap<String, UserObjectValue> variableNameList) throws InterpreterException {
 		if(type==VariableType.VAR) {
 			if(variableNameList.containsKey((String) value)==false) {
-    			System.out.println("Variable "+value+" doesn't exist");
-    			//throw varName+" doesn't exist"
-    			return 0;
+				throw new InterpreterException("Variable "+value+" doesn't exist");
     		}
 			return variableNameList.get(value).getValue();
 		}

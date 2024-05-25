@@ -29,18 +29,20 @@ public class CtrlChromatYnc {
 
     // isContinuous controllers
     public void setIsContinuousTrue() {
-        chromatYnc.setIsContinuous(true);
-        output("set display mode to \"Continuous\"");
-        Task<Void> processFileTask = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                chromatYnc.executeContinuesly();
-                return null;
-            }
-        };
-        Thread fileProcessThread = new Thread(processFileTask);
-        fileProcessThread.setDaemon(true);
-        fileProcessThread.start();
+        if (!chromatYnc.getIsContinuous()) {
+            chromatYnc.setIsContinuous(true);
+            output("set display mode to \"Continuous\"");
+            Task<Void> processFileTask = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    chromatYnc.executeContinuesly();
+                    return null;
+                }
+            };
+            Thread fileProcessThread = new Thread(processFileTask);
+            fileProcessThread.setDaemon(true);
+            fileProcessThread.start();
+        }
     }
     public void setIsContinuousFalse() {
         chromatYnc.setIsContinuous(false);
@@ -93,6 +95,8 @@ public class CtrlChromatYnc {
         fileChooser.getExtensionFilters().add(extFilter);
 
         File selectedFile = fileChooser.showOpenDialog(null);
+        //chromatYnc.processFile(selectedFile);
+
         if (selectedFile != null) {
             output("processing file...");
             Task<Void> processFileTask = new Task<Void>() {
