@@ -19,7 +19,7 @@ public class UserObjectValue extends Evaluable {
 		} else if(isAString(str) && variableType==VariableType.STR) {
 			//Can't Support Special/Operator character: !,||,&&,+,<...
 			//remove quote at start and end of string
-			value=str.replaceAll("STR", "");//temporary
+			value=str.replaceAll("\"", "");//temporary
 			//value=str.replaceAll("\"|'", "");
 		} else if(isAVariable(str) && variableType==VariableType.VAR) {
 			type=VariableType.STR;
@@ -107,7 +107,7 @@ public class UserObjectValue extends Evaluable {
 	}
 	//return true if str represent a String
 	private boolean isAString(String str) {
-		return str.startsWith("STR");
+		return str.startsWith("\"") && str.endsWith("\"");
 		//return str.startsWith("\"|'") && str.endsWith("\"|'");
 	}
 	//return true if str represent a Variable

@@ -33,9 +33,9 @@ public enum Command {
 												new VariableType[]{ VariableType.VAR,VariableType.NUM,VariableType.NUM },
 												new VariableType[]{ VariableType.VAR,VariableType.NUM }};}
 		case DEL: {return new VariableType[][]{new VariableType[]{ VariableType.VAR }};}
-		case NUM:
-		case BOOL:
-		case STR: {return new VariableType[][]{new VariableType[]{ VariableType.VAR,VariableType.NUM }};}
+		case NUM: {return new VariableType[][]{new VariableType[]{ VariableType.VAR,VariableType.NUM }};}
+		case BOOL: {return new VariableType[][]{new VariableType[]{ VariableType.VAR,VariableType.BOOL }};}
+		case STR: {return new VariableType[][]{new VariableType[]{ VariableType.VAR,VariableType.STR }};}
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + this);
 		}

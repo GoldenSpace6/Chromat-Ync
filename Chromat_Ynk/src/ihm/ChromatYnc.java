@@ -18,7 +18,6 @@ import java.util.Date;
 
 import cursors.Cursor;
 import interpreter.Interpreter;
-import interpreter.InterpreterException;
 
 /**
  * ChromatYnc is the abstraction class of the application with a PAC model
@@ -212,12 +211,12 @@ public class ChromatYnc {
                         interpreter.setNextCurrentInstruction();	
                     }
                 }*/
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 if (stopWhenException.get()) {
-                    errorOutputDisplay( e.getMessage() + ". (at : " + interpreter.getCurrentInstruction().toString() + ")");
+                    errorOutputDisplay( exception.getMessage() + ". (at : " + interpreter.getCurrentInstruction().toString() + ")");
                     Interpreter.stopProcessFileThread();
                 } else {
-                    errorOutputDisplay( e.getMessage() + ". (skipped : " + interpreter.getCurrentInstruction().toString() + " : skipped)");
+                    errorOutputDisplay( exception.getMessage() + ". (skipped : " + interpreter.getCurrentInstruction().toString() + " : skipped)");
                 }
             }
         }
