@@ -25,7 +25,7 @@ import interpreter.InterpreterException;
  * @author Ewen Dano
  */
 public class ChromatYnc {
-
+    /** represents the option Continuous and Step by Step, (true being Continuous)*/
     private BooleanProperty isContinuous = new SimpleBooleanProperty(true);
     /** boolean that decides if the interpreter stops when faced with an exception */
     private BooleanProperty stopWhenException = new SimpleBooleanProperty(true);
@@ -169,6 +169,9 @@ public class ChromatYnc {
         }
     }
 
+    /**
+     * Executes script continuesly
+     */
     public void executeContinuesly() {
         if (interpreter != null) {
             //executeAll
@@ -187,14 +190,15 @@ public class ChromatYnc {
     }
 
     /**
-     * Method to call next instruction of a loaded file of instructions
+     * Method to call next instruction of a loaded file of instructions or single instruction.
+     * Receives exception from Interpreter.nextstep, stops interpretor if stopWhenException = true
      * @param 
      */
     public void nextInstruction() {
         if (interpreter != null && interpreter.getCurrentInstruction() != null) {
             try {
-                Exception exception = interpreter.nextStep();
-                if (exception != null) {
+                interpreter.nextStep();
+                /*if (exception != null) {
                     if (stopWhenException.get()) {
                         errorOutputDisplay( exception.getMessage() + ". (at : " + interpreter.getCurrentInstruction().toString() + ")");
                         if (exception instanceof InterpreterException) {
@@ -207,10 +211,13 @@ public class ChromatYnc {
                         errorOutputDisplay( exception.getMessage() + ". (skipped : " + interpreter.getCurrentInstruction().toString() + " : skipped)");
                         interpreter.setNextCurrentInstruction();	
                     }
-                }
-            } catch (InterpreterException e) {
+                }*/
+            } catch (Exception e) {
                 if (stopWhenException.get()) {
+                    errorOutputDisplay( e.getMessage() + ". (at : " + interpreter.getCurrentInstruction().toString() + ")");
                     Interpreter.stopProcessFileThread();
+                } else {
+                    errorOutputDisplay( e.getMessage() + ". (skipped : " + interpreter.getCurrentInstruction().toString() + " : skipped)");
                 }
             }
         }
@@ -229,18 +236,16 @@ public class ChromatYnc {
         System.out.println("Output : " + text);
     }
 
+    /**
+     * Method to set the output error to a specific format : [time] : ERROR : output error
+     * Also print the in the terminal err stream
+     * @param text error to output 
+     */
     public void errorOutputDisplay(String text) {
         Date objDate = new Date();
         SimpleDateFormat objSDF = new SimpleDateFormat("HH:mm:ss");
 
         setOutput("[" + objSDF.format(objDate) + "] : ERROR : " + text);
         System.err.println("Output : " + text);
-    }
-
-
-
-    public void debug() {
-        GraphicsContext gc = canvas.get().getGraphicsContext2D();
-        gc.fillText("Debug", 10, 50);
     }
 }

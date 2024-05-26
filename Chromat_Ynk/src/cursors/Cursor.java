@@ -14,6 +14,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+/**
+ * Abstract class with every cursors types common methods 
+ * @author Ewen Dano
+ */
 public abstract class Cursor {
     protected int id;
     protected GraphicsContext gc;
@@ -83,7 +87,8 @@ public abstract class Cursor {
     }
 
     /**
-     * Draws a line between Cursor's position and the point (x,y)
+     * Draws a line between Cursor's position and the point (x,y).
+     * Sets color, alpha and width according to cursor's properties
      * @param x X coordinate of the ending point of the line
      * @param y Y coordinate of the ending point of the line
      */
@@ -177,7 +182,11 @@ public abstract class Cursor {
     // lookAtPos
     public abstract void lookAtPos(double xPos, double yPos);
 
-    // look at specific coordinates
+    /**
+     * Sets cursor's orientation towards specific coordinates (x,y)
+     * @param xPos x coordinate to look at
+     * @param yPos y coordinate to look at
+     */ 
     public void lookAt(double xPos, double yPos) {
             double xCursor = x.get();
             double yCursor = y.get();
@@ -199,8 +208,14 @@ public abstract class Cursor {
     }
     
 
-
-    public Exception execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
+    /**
+     * /**
+     * Executes command given by the interpreter
+     * @param c command
+     * @param valueList list of arguments of the command
+     * @throws InterpreterException
+     */
+    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
 		String command = c.toString();
 
         switch (command) {
@@ -256,7 +271,7 @@ public abstract class Cursor {
                     valuePress = valuePress/100;
                 }
                 if (valuePress<0 || valuePress > 1) {
-                    return new InterpreterException("pressure value " + valuePress + " is out of bound");
+                    throw new InterpreterException("pressure value " + valuePress + " is out of bound");
                 }
                 if (valueList.length == 1) {
                     press(valuePress);
@@ -271,7 +286,7 @@ public abstract class Cursor {
                     int green = valueList[1].getInt();
                     int blue = valueList[2].getInt();
                     if (red<0 || red>255 || green<0 || green>255 || blue<0 || blue>255) {
-                        return new InterpreterException("RGB color out of bound");
+                        throw new InterpreterException("RGB color out of bound");
                     }
                     Color drawColorRGB = Color.rgb(red, green, blue);
                     color(drawColorRGB);
@@ -280,7 +295,7 @@ public abstract class Cursor {
             case "THICK":
                 double thickValue = valueList[0].getDouble();
                 if (thickValue<0) {
-                    return new InterpreterException("thickness value " + thickValue + " is out of bound");
+                    throw new InterpreterException("thickness value " + thickValue + " is out of bound");
                 }
                 thick(thickValue);
                 break;
@@ -288,7 +303,7 @@ public abstract class Cursor {
                 if (valueList.length == 1) {
                 	int id = valueList[0].getInt();
                     if (!cursorController.getCursors().containsKey(id)) {
-                        return new InterpreterException("Cursor " + id + " does not exist");
+                        throw new InterpreterException("Cursor " + id + " does not exist");
                     }
                     lookAtCursor(id);     	
                 } else if (valueList.length == 2) {
@@ -306,7 +321,6 @@ public abstract class Cursor {
             default:
                 break;
         }
-        return null;
 	}
     
 }

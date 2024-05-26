@@ -64,7 +64,7 @@ public class Interpreter {
 		return running;
 	}
 
-    public Exception nextStep() throws InterpreterException {
+    public void nextStep() throws Exception {
 
     	UserObjectValue[] args = new UserObjectValue[currentInstruction.getArgs().length];
     	VariableType[][] argumentType=currentInstruction.getCommand().argumentType();
@@ -73,18 +73,15 @@ public class Interpreter {
     		if(j.length==args.length) {
     			hasArgs=true;
 	        	for(int i=0;i<j.length;i++) {
-	        		//create a Evaluable and eval it to directly get its value;
-					try {
-	        			UserObjectValue t = new UserObjectValue(Evaluable.newEvaluable(currentInstruction.getArgs()[i],j[i]).eval(vars),j[i], currentInstruction.getArgs()[i]);
-						args[i] = t;
-					} catch (Exception e) {
-						return e;
-					}
+
+	        		UserObjectValue t = new UserObjectValue(Evaluable.newEvaluable(currentInstruction.getArgs()[i],j[i]).eval(vars),j[i], currentInstruction.getArgs()[i]);
+					args[i] = t;
+
 	        	}
     		}
     	}
     	if (hasArgs==false) {
-			return new InterpreterException("Wrong number of arguments for command "+currentInstruction.getCommand()+" ,got "+Arrays.toString(currentInstruction.getArgs()));    		
+			throw new InterpreterException("Wrong number of arguments for command "+currentInstruction.getCommand()+" ,got "+Arrays.toString(currentInstruction.getArgs()));    		
     	}
     	//----
         System.out.print(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
@@ -207,8 +204,7 @@ public class Interpreter {
     				currentInstruction = currentInstruction.getConditionInstruction();
     			}
     		} else {
-    			return new InterpreterException("Invalid value for "+currentInstruction);
-    			//throw "Invalid value for "+currentInstruction
+    			throw new InterpreterException("Invalid value for "+currentInstruction);
     		}
     	} else if(currentInstruction.getCommand().isChangingVariable()) {
 
@@ -216,9 +212,9 @@ public class Interpreter {
 			case CURSOR: {
 				int id = args[0].getInt();
 				if(cursors.containsKey(id)) {
-					return new InterpreterException("Cursor "+args[0].getInt()+" already exist");
+					throw new InterpreterException("Cursor "+args[0].getInt()+" already exist");
 				} else if (id<0) {
-					return new InterpreterException(args[0].getInt()+" is an invalid id");
+					throw new InterpreterException(args[0].getInt()+" is an invalid id");
 				} else {
 					Cursor cursorNormal = cursorController.createCursorNormal(id);
 					cursorController.addCursor(cursorNormal);
@@ -231,7 +227,7 @@ public class Interpreter {
 			case SELECT: {
 				int id = args[0].getInt();
 				if(cursors.containsKey(id)==false) {
-					return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
+					throw new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
 				} else {
 					chromatYnc.setSelectedCursor(cursors.get(id));
 				}
@@ -240,7 +236,7 @@ public class Interpreter {
 			case REMOVE: {
 				int id = args[0].getInt();
 				if(cursors.containsKey(id)==false) {
-					return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
+					throw new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
 				} else {
 					cursors.remove(id);
 				}
@@ -248,7 +244,7 @@ public class Interpreter {
 			}
 			case DEL: {
 				if(vars.containsKey(args[0].getString())==false) {
-	    			return new InterpreterException("Variable "+args[0].getString()+" doesn't exist");
+	    			throw new InterpreterException("Variable "+args[0].getString()+" doesn't exist");
 	    		} else {
     				vars.remove(args[0].getString());
 				}
@@ -260,31 +256,30 @@ public class Interpreter {
 	    		String varName =  args[0].getString();
 	    		
 				if(UserObjectValue.isAVariable(varName)==false) {
-	    			return new InterpreterException("Variable "+varName+"is not a valide variable, variable can only contains letters.");
+	    			throw new InterpreterException("Variable "+varName+"is not a valide variable, variable can only contains letters.");
 				}
 				//convert from enum Command to enum VariableType
 	    		VariableType currentCommand = VariableType.valueOf(currentInstruction.getCommand().toString());
 	    		if(vars.containsKey(varName) && vars.get(varName).getReturnType(vars)!=currentCommand) {
-	    			return new InterpreterException("cannot change type from "+vars.get(varName).getReturnType(vars)+" to "+currentCommand);
+	    			throw new InterpreterException("cannot change type from "+vars.get(varName).getReturnType(vars)+" to "+currentCommand);
 	    		}
     			vars.put(varName,args[1]);
     			break;
 			}
 			default:
-				return new IllegalArgumentException("Unexpected value: " + currentInstruction.getCommand());
+				throw new IllegalArgumentException("Unexpected value: " + currentInstruction.getCommand());
 			}
 			currentInstruction = currentInstruction.getNextInstruction();
     	} else if(currentInstruction.getCommand().isCursorCommand()) {
     		if (chromatYnc.getSelectedCursor()==null) {
-    			return new InterpreterException("No cursor Selected");
+    			throw new InterpreterException("No cursor Selected");
     		}
 			for(Cursor i: chromatYnc.getSelectedCursor()) {
-				Exception exception = i.execCommand(currentInstruction.getCommand(), args);
-				if (exception != null) {return exception;} // exit if exception found in execCommand of cursor
+				i.execCommand(currentInstruction.getCommand(), args);
+				//if (exception != null) {return exception;} // exit if exception found in execCommand of cursor
 			}			
 			setNextCurrentInstruction();	
     	}
-		return null;
     }
 
 	public static void stopProcessFileThread() {
