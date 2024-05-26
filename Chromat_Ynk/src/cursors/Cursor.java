@@ -16,7 +16,6 @@ import javafx.scene.paint.Color;
 
 /**
  * Abstract class with every cursors types common methods 
- * @author Ewen Dano
  */
 public abstract class Cursor {
     protected int id;

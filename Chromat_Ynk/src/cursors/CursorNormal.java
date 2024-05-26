@@ -6,9 +6,16 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
+/**
+ * Cursor class used by instruction CURSOR, its methods are specific to a NORMAL cursor
+ */
 public class CursorNormal extends Cursor {
 
-
+    /**
+     * create a CursorNormal object, initiate its position, rotation, color, pressure, alpha and thickness
+     * @param canvas canvas where the cursor draws to
+     * @param cursorController class that controls cursors
+     */ 
     public CursorNormal(Canvas canvas, CursorController cursorController) {
         this.canvas = canvas;
         Platform.runLater(() -> {

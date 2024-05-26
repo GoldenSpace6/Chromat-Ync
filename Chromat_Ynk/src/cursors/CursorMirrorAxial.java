@@ -6,6 +6,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
+/**
+ * Cursor class used by instruction MIRROR (axial), its methods are specific to MIRROR (axial) cursor
+ */
 public class CursorMirrorAxial extends Cursor {
     // Axial coordinates
     private double x1;
@@ -13,6 +16,16 @@ public class CursorMirrorAxial extends Cursor {
     private double x2;
     private double y2;
 
+    /**
+     * create a CursorMirror (axial) object, initiate its position, rotation, color, pressure, alpha and thickness
+     * @param canvas canvas where the cursor draws to
+     * @param cursorController class that controls cursors
+     * @param fatherCursor father cursor to mirror
+     * @param x1 x coordinate of the first point of mirror axis
+     * @param y1 y coordinate of the first point of mirror axis
+     * @param x2 x coordinate of the second point of mirror axis
+     * @param y2 y coordinate of the second point of mirror axis
+     */
     public CursorMirrorAxial(Canvas canvas, CursorController cursorController, Cursor fatherCursor, double x1, double y1 , double x2, double y2) {
         this.canvas = canvas;
         Platform.runLater(() -> {

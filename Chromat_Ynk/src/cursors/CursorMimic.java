@@ -6,9 +6,17 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
+/**
+ * Cursor class used by instruction MIMIC, its methods are specific to MIMIC cursor
+ */
 public class CursorMimic extends Cursor {
 
-
+    /**
+     * create a CursorMimic object, initiate its position, rotation, color, pressure, alpha and thickness
+     * @param canvas canvas where the cursor draws to
+     * @param cursorController class that controls cursors
+     * @param fatherCursor father cursor that created the mimic cursor
+     */
     public CursorMimic(Canvas canvas, CursorController cursorController, Cursor fatherCursor) {
         this.canvas = canvas;
         Platform.runLater(() -> {
