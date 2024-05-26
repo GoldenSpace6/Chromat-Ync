@@ -1,19 +1,14 @@
 package interpreter;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import cursors.Cursor;
 import ihm.ChromatYnc;
 import ihm.CursorController;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import lexer.Command;
@@ -27,20 +22,10 @@ public class Interpreter {
 	private ObservableList<Cursor> selectedCursor;
     
 	private InstructionNode currentInstruction;
-    private DoubleProperty timeBetweenFrames;
-	private StringProperty output;
-	private BooleanProperty isContinuous;
-	private BooleanProperty stopWhenException;
-
-	private Exception exception;
     
     public Interpreter(File f, ChromatYnc chromatYnc) {
     	this.vars= new HashMap<String, UserObjectValue>();
 		this.cursorController = chromatYnc.getCursorController();
-		this.timeBetweenFrames = chromatYnc.delayBetweenFramesProperty();
-		this.isContinuous = chromatYnc.isContinuousProperty();
-		this.stopWhenException = chromatYnc.stopWhenExceptionProperty();
-		this.output = chromatYnc.outputProperty();
     	this.cursors= cursorController.getCursors();
     	Parser parser = new Parser(f);
 		parser.parserRec();
@@ -145,8 +130,7 @@ public class Interpreter {
     				currentInstruction = currentInstruction.getConditionInstruction();
     			}
     		} else {
-    			outputDisplay("Invalid value for "+currentInstruction);
-    			//throw "Invalid value for "+currentInstruction
+    			throw new InterpreterException("Invalid value for "+currentInstruction);
     		}
     	} else if(currentInstruction.getCommand().isChangingVariable()) {
 
@@ -156,7 +140,7 @@ public class Interpreter {
 				if(cursors.containsKey(id)) {
 					return new InterpreterException("Cursor "+args[0].getInt()+" already exist");
 				} else if (id<0) {
-					outputDisplay(args[0].getInt()+" is an invalid id");
+					throw new InterpreterException(args[0].getInt()+" is an invalid id");
 				} else {
 					cursorController.addCursorNormal(id);
 					
@@ -222,46 +206,5 @@ public class Interpreter {
     	}
 		return null;
     }
-
-	public void outputDisplay(String text) {
-        Date objDate = new Date();
-        SimpleDateFormat objSDF = new SimpleDateFormat("HH:mm:ss");
-
-        output.set("[" + objSDF.format(objDate) + "] : " + text);
-        System.out.println("Output : " + text);
-    }
-
-	public void errorOutputDisplay(String text) {
-        Date objDate = new Date();
-        SimpleDateFormat objSDF = new SimpleDateFormat("HH:mm:ss");
-
-        output.set("[" + objSDF.format(objDate) + "] : ERROR : " + text);
-        System.err.println("Output : " + text);
-    }
     
-    public void executeAll() throws InterpreterException {
-    	while(currentInstruction != null && isContinuous.get()) {
-    		exception = nextStep();
-			if (exception != null) {
-				if (stopWhenException.get()) {
-					errorOutputDisplay( exception.getMessage() + ". (at : " + currentInstruction.toString() + ")");
-					if (exception instanceof InterpreterException) {
-						throw (InterpreterException) exception;
-					}
-					if (exception instanceof IllegalArgumentException) {
-						throw (IllegalArgumentException) exception;
-					}
-				} else {
-					errorOutputDisplay( exception.getMessage() + ". (skipped : " + currentInstruction.toString() + ")");
-					currentInstruction = currentInstruction.getNextInstruction();	
-				}
-			}
-			try {
-				Thread.sleep((long)(timeBetweenFrames.get()*1000));
-			  } catch (InterruptedException e) {
-				outputDisplay("ERROR");
-				Thread.currentThread().interrupt();
-			  } 		
-    	}
-    }
 }

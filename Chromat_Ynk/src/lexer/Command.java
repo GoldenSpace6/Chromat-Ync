@@ -47,7 +47,6 @@ public enum Command {
 		return this==NUM||this==STR||this==BOOL||this==DEL||this==CURSOR||this==SELECT||this==REMOVE;
 	}
 	public boolean isCursorCommand() {
-		// TODO Auto-generated method stub
 		return this==FWD||this==BWD||this==TURN||this==MOV||this==POS||this==HIDE||this==SHOW||this==PRESS||this==COLOR||this==THICK||this==LOOKAT;
 	}
 }

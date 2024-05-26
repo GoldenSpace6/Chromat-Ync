@@ -26,8 +26,8 @@ public class ChromatYnc {
     private BooleanProperty isContinuous = new SimpleBooleanProperty(true);
     private BooleanProperty stopWhenException = new SimpleBooleanProperty(true);
     //* represents the delay waited between each instructions in seconds */
-    protected DoubleProperty delayBetweenFrames = new SimpleDoubleProperty(0);      
-
+    protected DoubleProperty delayBetweenFrames = new SimpleDoubleProperty(0);
+    
     private StringProperty input = new SimpleStringProperty();
     private StringProperty output = new SimpleStringProperty();
 
@@ -152,11 +152,18 @@ public class ChromatYnc {
 
     public void executeContinuesly() {
         if (interpreter != null) {
-            try {
-                interpreter.executeAll();
-            } catch (InterpreterException e) {
-                //
-		    }
+        	//excuteAll
+        	while(interpreter.getCurrentInstruction() != null && this.isContinuousProperty().get()) {
+        		
+        		nextInstruction();
+        		
+        		try {
+        			Thread.sleep((long)(this.delayBetweenFramesProperty().get()*1000));
+       			} catch (InterruptedException e) {
+       				outputDisplay("ERROR");
+       				Thread.currentThread().interrupt();
+       			}
+        	}
         }
     }
 
