@@ -1,0 +1,45 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "IHMChromatYnc",
+            "request": "launch",
+            "vmArgs": "--module-path H:/Documents/cours/Projet/openjfx-17.0.11_windows-x64_bin-sdk/javafx-sdk-17.0.11/lib --add-modules javafx.controls,javafx.fxml",
+            "mainClass": "ihm.IHMChromatYnc",
+            "projectName": "Chromat_Ynk"
+        },
+        {
+            "type": "java",
+            "name": "ChromatYnc",
+            "request": "launch",
+            "vmArgs": "--module-path H:/Documents/cours/Projet/openjfx-17.0.11_windows-x64_bin-sdk/javafx-sdk-17.0.11/lib --add-modules javafx.controls,javafx.fxml",
+            "mainClass": "ChromatYnc",
+            "projectName": "Chromat_Ynk"
+        },
+        {
+            "type": "java",
+            "name": "ApplicationDisplay",
+            "request": "launch",
+            "vmArgs": "--module-path H:/Documents/cours/Projet/openjfx-17.0.11_windows-x64_bin-sdk/javafx-sdk-17.0.11/lib --add-modules javafx.controls,javafx.fxml",
+            "mainClass": "Canvas.ApplicationDisplay",
+            "projectName": "Chromat_Ynk"
+        },
+        {
+            "type": "java",
+            "name": "Display",
+            "request": "launch",
+            "mainClass": "Canvas.Display",
+            "projectName": "Chromat_Ynk"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        }
+    ]
+}
