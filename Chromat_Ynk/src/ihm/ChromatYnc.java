@@ -9,11 +9,14 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.canvas.*;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import cursors.Cursor;
 import interpreter.Interpreter;
 import interpreter.InterpreterException;
 
@@ -24,8 +27,9 @@ import interpreter.InterpreterException;
 public class ChromatYnc {
 
     private BooleanProperty isContinuous = new SimpleBooleanProperty(true);
+    /** boolean that decides if the interpreter stops when faced with an exception */
     private BooleanProperty stopWhenException = new SimpleBooleanProperty(true);
-    //* represents the delay waited between each instructions in seconds */
+    /** represents the delay waited between each instructions in seconds */
     protected DoubleProperty delayBetweenFrames = new SimpleDoubleProperty(0);      
 
     private StringProperty input = new SimpleStringProperty();
@@ -35,6 +39,7 @@ public class ChromatYnc {
     protected ObjectProperty<Canvas> canvas = new SimpleObjectProperty<>();
 
     private CursorController cursorController;
+    private ObservableList<Cursor> selectedCursor;
 
     private Interpreter interpreter;
 
@@ -124,17 +129,31 @@ public class ChromatYnc {
     public void setCursorController(CursorController cursorController) {
         this.cursorController = cursorController;
     }
+    
+    // selectedCursor accessors
+    public ObservableList<Cursor> getSelectedCursor() {
+        return selectedCursor;
+    }
+    public void setSelectedCursor(ObservableList<Cursor> selectedCursor) {
+        this.selectedCursor = selectedCursor;
+    }
+
+    // interpreter accessors
+    public Interpreter getInterpreter() {
+        return interpreter;
+    }
+    public void setInterpreter(Interpreter interpreter) {
+        this.interpreter = interpreter;
+    }
 
     /**
      * Method used to send unitary instruction written in the inputTextField to be processed by the lexer
      * @param input Unitary instruction to process
      */
     public void processInput(String input) {
-        /*cursorController.addCursor(0);
-        cursorController.getCursors().get(0).get(0).color(Color.web("#b6fc03"));
-        cursorController.getCursors().get(0).get(0).fwd(50);  
-        */
-        // SEND INPUT TO 
+        outputDisplay("processing input...");
+        interpreter = new Interpreter(input, this);
+        nextInstruction();
     }
 
     /**
@@ -152,11 +171,18 @@ public class ChromatYnc {
 
     public void executeContinuesly() {
         if (interpreter != null) {
-            try {
-                interpreter.executeAll();
-            } catch (InterpreterException e) {
-                //
-		    }
+            //executeAll
+        	while(interpreter.getCurrentInstruction() != null && this.isContinuousProperty().get() && Interpreter.isRunning()) {
+
+        		nextInstruction();
+
+        		try {
+        			Thread.sleep((long)(this.delayBetweenFramesProperty().get()*1000));
+       			} catch (InterruptedException e) {
+       				outputDisplay("ERROR");
+       				Thread.currentThread().interrupt();
+       			}
+        	}
         }
     }
 
@@ -183,7 +209,9 @@ public class ChromatYnc {
                     }
                 }
             } catch (InterpreterException e) {
-                errorOutputDisplay(e.getMessage());
+                if (stopWhenException.get()) {
+                    Interpreter.stopProcessFileThread();
+                }
             }
         }
     }

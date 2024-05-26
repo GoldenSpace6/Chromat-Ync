@@ -8,16 +8,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ihm.ChromatYnc;
+import interpreter.Interpreter;
+
 
 public class Parser {
+	private ChromatYnc chromatYnc;
+
 	private Instruction[] instructions;
-	public void Lexer (File file) throws IOException {
+	public void lexerFile (File file) throws IOException {
 		ArrayList<Instruction> instructionList = new ArrayList<Instruction>();
 		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			String line = reader.readLine();
 			while (line!=null) {
 				String[] words = line.split(" ");
-				instructionList.add(toInstruction(words));
+				if (toInstruction(words) != null) {
+					instructionList.add(toInstruction(words));
+				}
 				line = reader.readLine();
 			}
 			instructions = new Instruction[instructionList.size()];
@@ -31,10 +38,32 @@ public class Parser {
 			e.printStackTrace();
 		}
 	}
+	public void lexerStr (String str) throws IOException {
+		ArrayList<Instruction> instructionList = new ArrayList<Instruction>();
+		String line = str;
+		if (line!=null) {
+			String[] words = line.split(" ");
+			if (toInstruction(words) != null) {
+			instructionList.add(toInstruction(words));
+			}
+			line = str;
+		}
+		instructions = new Instruction[instructionList.size()];
+		instructions = instructionList.toArray(instructions);
+
+	}
 	public Instruction toInstruction (String[] words) {
-		System.out.print(words[0] + " ");
-		Instruction instruction = new Instruction(Command.valueOf(words[0]), Arrays.copyOfRange(words,1,words.length));
-		return instruction;
+		//System.out.print(words[0] + " ");
+		try {
+			Instruction instruction = new Instruction(Command.valueOf(words[0]), Arrays.copyOfRange(words,1,words.length));
+			return instruction;
+		} catch (IllegalArgumentException e){
+			chromatYnc.errorOutputDisplay("no command \"" + words[0] + "\"");
+			if (chromatYnc.getStopWhenException()) {
+				Interpreter.stopProcessFileThread();
+			}				
+			return null;
+		}	
 	}
 	
 	
@@ -45,9 +74,21 @@ public class Parser {
 	InstructionNode prevConditionInstruction;
 	ArrayList<InstructionNode> prevList = new ArrayList<>(); //listdestrucquichercheapointersurlaprochaineinstruction en next 
 	
-	public Parser(File file) { //temporary arguments
+	public Parser(File file, ChromatYnc chromatYnc) { //temporary arguments
+		this.chromatYnc = chromatYnc;
 		try {
-			Lexer(file);
+			lexerFile(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		ci = 0;
+		startInstruction= null;
+		prevConditionInstruction = null;
+	}
+	public Parser(String str, ChromatYnc chromatYnc) { //temporary arguments
+		this.chromatYnc = chromatYnc;
+		try {
+			lexerStr(str);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -90,8 +131,13 @@ public class Parser {
 			parserRec();
 			return;
 		} else {
-			if (instructions[ci+1].getCommand() == Command.END) {
-				//trow "cannot create empty instruction blocks";
+			try {
+				if (instructions[ci+1].getCommand() == Command.END) {
+					// create empty instruction blocks;
+					return;
+				}
+			} catch (ArrayIndexOutOfBoundsException e) {
+				// create instruction block on its own		
 				return;
 			}
 			if(instructions[ci].getCommand() != Command.FOR)  {

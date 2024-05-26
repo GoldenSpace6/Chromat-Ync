@@ -80,8 +80,7 @@ public class CtrlChromatYnc {
 
     // input controllers
     public void handleInput(String input) {
-        chromatYnc.processInput(input);
-        output("processing input...");
+        chromatYnc.processInput(input);    
     }
 
     // output controllers
@@ -168,9 +167,10 @@ public class CtrlChromatYnc {
     // reset interpreter
     public void resetInterpreter() {
         output("reset interpreter");
+        chromatYnc.setInterpreter(null);
         Platform.runLater(() -> {
             ObservableMap<Integer, ObservableList<Cursor>> cursors = chromatYnc.getCursorController().getCursors();
-            cursors.clear();
+            cursors.clear();      
         });
     }
 

@@ -1,10 +1,8 @@
 package interpreter;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,9 +11,6 @@ import cursors.Cursor;
 import ihm.ChromatYnc;
 import ihm.CursorController;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.canvas.Canvas;
@@ -26,32 +21,36 @@ import lexer.Parser;
 public class Interpreter {
 	private static volatile boolean running = true;
 
+	private ChromatYnc chromatYnc;
 	private HashMap<String, UserObjectValue> vars;
 	private CursorController cursorController;
 	private ObservableMap<Integer, ObservableList<Cursor>> cursors;
-	private ObservableList<Cursor> selectedCursor;
     
 	private InstructionNode currentInstruction;
-    private DoubleProperty timeBetweenFrames;
-	private StringProperty output;
-	private BooleanProperty isContinuous;
-	private BooleanProperty stopWhenException;
 	private Canvas canvas;
 	private LinkedList<ArrayList<Cursor>> cursorsToDeleteList;
 
-	private Exception exception;
     
-    public Interpreter(File f, ChromatYnc chromatYnc) {
+    public Interpreter(File f, ChromatYnc chromatYnc) {	
+		Interpreter.running = true;
+		this.chromatYnc = chromatYnc;
     	this.vars= new HashMap<String, UserObjectValue>();
 		this.cursorController = chromatYnc.getCursorController();
 		this.cursorsToDeleteList = new LinkedList<>();
-		this.timeBetweenFrames = chromatYnc.delayBetweenFramesProperty();
-		this.isContinuous = chromatYnc.isContinuousProperty();
-		this.stopWhenException = chromatYnc.stopWhenExceptionProperty();
-		this.output = chromatYnc.outputProperty();
     	this.cursors= cursorController.getCursors();
 		this.canvas = chromatYnc.getCanvas();
-    	Parser parser = new Parser(f);
+    	Parser parser = new Parser(f, chromatYnc);
+		parser.parserRec();
+		this.currentInstruction = parser.getStartInstruction();
+    }
+	public Interpreter(String str, ChromatYnc chromatYnc) {
+    	this.vars= new HashMap<String, UserObjectValue>();
+		this.chromatYnc = chromatYnc;
+		this.cursorController = chromatYnc.getCursorController();
+		this.cursorsToDeleteList = new LinkedList<>();
+    	this.cursors= cursorController.getCursors();
+		this.canvas = chromatYnc.getCanvas();
+    	Parser parser = new Parser(str, chromatYnc);
 		parser.parserRec();
 		this.currentInstruction = parser.getStartInstruction();
     }
@@ -60,6 +59,9 @@ public class Interpreter {
 	}
 	public void setNextCurrentInstruction() {
 		currentInstruction = currentInstruction.getNextInstruction();
+	}
+	public static boolean isRunning() {
+		return running;
 	}
 
     public Exception nextStep() throws InterpreterException {
@@ -86,11 +88,10 @@ public class Interpreter {
     	}
     	//----
         System.out.print(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
-		if (args[0] != null && args[0].getIsPercentage()) {
+		if (args.length>0 && args[0] != null && args[0].getIsPercentage()) {
 			System.out.print("%");
 		}	
 		System.out.println("");
-		//outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
     	//----
     	
     	if(currentInstruction.getCommand().isInstructionBlock()) {
@@ -116,7 +117,7 @@ public class Interpreter {
     				currentInstruction.setHasBeenExecuted();
 					int idToMimic = args[0].getInt();
 					List<Cursor> toAdd = new ArrayList<>();
-					for(Cursor i: selectedCursor) {
+					for(Cursor i: chromatYnc.getSelectedCursor()) {
 						if (i != null) {
 							toAdd.add(i);
 						}
@@ -128,7 +129,7 @@ public class Interpreter {
 						cursorMimicArray.add(cursorMimic);
 					}
 					cursorsToDeleteList.addLast(cursorMimicArray);
-					selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
+					chromatYnc.setSelectedCursor(cursorController.getCursors().get(chromatYnc.getSelectedCursor().get(0).getId()));
 					//MIMIC the first cursor of the id given
 					//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getInt()).get(0)));
 					
@@ -150,7 +151,7 @@ public class Interpreter {
     				currentInstruction.setHasBeenExecuted();
     				if(args.length==2) {
 						List<Cursor> toAdd = new ArrayList<>();
-						for(Cursor i: selectedCursor) {
+						for(Cursor i: chromatYnc.getSelectedCursor()) {
 							if (i != null) {
 								toAdd.add(i);
 							}
@@ -170,10 +171,10 @@ public class Interpreter {
 							cursorMirrorArray.add(cursorMirror);
 						}
 						cursorsToDeleteList.addLast(cursorMirrorArray);
-						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
+						chromatYnc.setSelectedCursor(cursorController.getCursors().get(chromatYnc.getSelectedCursor().get(0).getId()));
 					} else {
 						List<Cursor> toAdd = new ArrayList<>();
-						for(Cursor i: selectedCursor) {
+						for(Cursor i: chromatYnc.getSelectedCursor()) {
 							if (i != null) {
 								toAdd.add(i);
 							}
@@ -201,12 +202,12 @@ public class Interpreter {
 							cursorMirrorArray.add(cursorMirror);
 						}
 						cursorsToDeleteList.addLast(cursorMirrorArray);
-						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
+						chromatYnc.setSelectedCursor(cursorController.getCursors().get(chromatYnc.getSelectedCursor().get(0).getId()));
 					}
     				currentInstruction = currentInstruction.getConditionInstruction();
     			}
     		} else {
-    			outputDisplay("Invalid value for "+currentInstruction);
+    			return new InterpreterException("Invalid value for "+currentInstruction);
     			//throw "Invalid value for "+currentInstruction
     		}
     	} else if(currentInstruction.getCommand().isChangingVariable()) {
@@ -217,13 +218,13 @@ public class Interpreter {
 				if(cursors.containsKey(id)) {
 					return new InterpreterException("Cursor "+args[0].getInt()+" already exist");
 				} else if (id<0) {
-					outputDisplay(args[0].getInt()+" is an invalid id");
+					return new InterpreterException(args[0].getInt()+" is an invalid id");
 				} else {
 					Cursor cursorNormal = cursorController.createCursorNormal(id);
 					cursorController.addCursor(cursorNormal);
 					
 					//select the created cursor
-					selectedCursor=cursorController.getCursors().get(id);
+					chromatYnc.setSelectedCursor(cursorController.getCursors().get(id));
 				}
 				break;
 			}
@@ -232,7 +233,7 @@ public class Interpreter {
 				if(cursors.containsKey(id)==false) {
 					return new InterpreterException("Cursor "+args[0].getInt()+" doesn't exist");
 				} else {
-					selectedCursor=cursors.get(id);
+					chromatYnc.setSelectedCursor(cursors.get(id));
 				}
 				break;
 			}
@@ -274,58 +275,16 @@ public class Interpreter {
 			}
 			currentInstruction = currentInstruction.getNextInstruction();
     	} else if(currentInstruction.getCommand().isCursorCommand()) {
-    		if (selectedCursor==null) {
+    		if (chromatYnc.getSelectedCursor()==null) {
     			return new InterpreterException("No cursor Selected");
     		}
-			for(Cursor i:selectedCursor) {
+			for(Cursor i: chromatYnc.getSelectedCursor()) {
 				Exception exception = i.execCommand(currentInstruction.getCommand(), args);
 				if (exception != null) {return exception;} // exit if exception found in execCommand of cursor
 			}			
 			setNextCurrentInstruction();	
     	}
 		return null;
-    }
-
-	public void outputDisplay(String text) {
-        Date objDate = new Date();
-        SimpleDateFormat objSDF = new SimpleDateFormat("HH:mm:ss");
-
-        output.set("[" + objSDF.format(objDate) + "] : " + text);
-        System.out.println("Output : " + text);
-    }
-
-	public void errorOutputDisplay(String text) {
-        Date objDate = new Date();
-        SimpleDateFormat objSDF = new SimpleDateFormat("HH:mm:ss");
-
-        output.set("[" + objSDF.format(objDate) + "] : ERROR : " + text);
-        System.err.println("Output : " + text);
-    }
-    
-    public void executeAll() throws InterpreterException {
-    	while(currentInstruction != null && isContinuous.get() && running) {
-    		exception = nextStep();
-			if (exception != null) {
-				if (stopWhenException.get()) {
-					errorOutputDisplay( exception.getMessage() + ". (at : " + currentInstruction.toString() + ")");
-					if (exception instanceof InterpreterException) {
-						throw (InterpreterException) exception;
-					}
-					if (exception instanceof IllegalArgumentException) {
-						throw (IllegalArgumentException) exception;
-					}
-				} else {
-					errorOutputDisplay( exception.getMessage() + ". (skipped : " + currentInstruction.toString() + ")");
-					currentInstruction = currentInstruction.getNextInstruction();	
-				}
-			}
-			try {
-				Thread.sleep((long)(timeBetweenFrames.get()*1000));
-			  } catch (InterruptedException e) {
-				outputDisplay("ERROR");
-				Thread.currentThread().interrupt();
-			  } 		
-    	}
     }
 
 	public static void stopProcessFileThread() {

@@ -107,8 +107,6 @@ public class IHMChromatYnc extends Application {
 
         resetImageItem.setOnAction(e -> { 
             ctrlChromatYnc.resetCanvas();
-            canvasContainer.getChildren().clear();
-            canvasContainer.getChildren().add(canvas);
         }); // resetImageItem event    
         saveImageItem.setOnAction(e -> ctrlChromatYnc.saveCanvasToFile()); // saveImageItem event
         loadScriptItem.setOnAction(e -> {   // loadScriptItem event
