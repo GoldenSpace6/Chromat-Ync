@@ -10,6 +10,7 @@ public class CursorNormal extends Cursor {
 
 
     public CursorNormal(Canvas canvas, CursorController cursorController) {
+        this.canvas = canvas;
         Platform.runLater(() -> {
             this.x.set(canvas.getWidth()/2);
             this.y.set(canvas.getHeight()/2);
@@ -22,7 +23,6 @@ public class CursorNormal extends Cursor {
             thickness = 1;
             drawColor = Color.BLACK;
             this.cursorController = cursorController;
-            this.canvas = canvas;
         });
     }
 

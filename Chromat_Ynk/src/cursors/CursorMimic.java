@@ -10,7 +10,9 @@ public class CursorMimic extends Cursor {
 
 
     public CursorMimic(Canvas canvas, CursorController cursorController, Cursor fatherCursor) {
+        this.canvas = canvas;
         Platform.runLater(() -> {
+            this.fatherCursor = fatherCursor;
             this.x.set(fatherCursor.getX());
             this.y.set(fatherCursor.getY());
             rotation.set(fatherCursor.getRotation());
@@ -49,19 +51,17 @@ public class CursorMimic extends Cursor {
         });
     }
 
-    // normal lookAtCursor
+    // mimic lookAtCursor
     public void lookAtCursor(int id) {
         Platform.runLater(() -> {
-            double xPos = cursorController.getCursors().get(id).get(0).getX();
-            double yPos = cursorController.getCursors().get(id).get(0).getY();
-            lookAt(xPos, yPos);
+            rotation.set(fatherCursor.getRotation()); // mimic father orientation
         });
     }
 
-    // normal lookAtPos
+    // mimic lookAtPos
     public void lookAtPos(double xPos, double yPos) {
         Platform.runLater(() -> {
-            lookAt(xPos, yPos);
+            rotation.set(fatherCursor.getRotation()); // mimic father orientation
         });
     }
 }

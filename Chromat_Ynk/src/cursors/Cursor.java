@@ -75,7 +75,7 @@ public abstract class Cursor {
     public double getRotation() {
         return rotation.get();
     }
-    public void setRotation(double rotation) { // useless
+    public void setRotation(double rotation) {
         this.rotation.set(rotation);
     }
     public DoubleProperty rotationProperty() {
@@ -179,7 +179,6 @@ public abstract class Cursor {
 
     // look at specific coordinates
     public void lookAt(double xPos, double yPos) {
-        Platform.runLater(() -> {
             double xCursor = x.get();
             double yCursor = y.get();
 
@@ -197,12 +196,11 @@ public abstract class Cursor {
                 }
             }
             rotation.set(rotation.get() % 360);
-        });
     }
     
 
 
-    public void execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
+    public Exception execCommand(Command c,UserObjectValue[] valueList) throws InterpreterException {
 		String command = c.toString();
 
         switch (command) {
@@ -257,6 +255,9 @@ public abstract class Cursor {
                 if (valueList[0].getIsPercentage()) {
                     valuePress = valuePress/100;
                 }
+                if (valuePress<0 || valuePress > 1) {
+                    return new InterpreterException("pressure value " + valuePress + " is out of bound");
+                }
                 if (valueList.length == 1) {
                     press(valuePress);
                 }
@@ -269,17 +270,27 @@ public abstract class Cursor {
                     int red = valueList[0].getInt();
                     int green = valueList[1].getInt();
                     int blue = valueList[2].getInt();
+                    if (red<0 || red>255 || green<0 || green>255 || blue<0 || blue>255) {
+                        return new InterpreterException("RGB color out of bound");
+                    }
                     Color drawColorRGB = Color.rgb(red, green, blue);
                     color(drawColorRGB);
                 }
                 break;
             case "THICK":
-                thick(valueList[0].getDouble());
+                double thickValue = valueList[0].getDouble();
+                if (thickValue<0) {
+                    return new InterpreterException("thickness value " + thickValue + " is out of bound");
+                }
+                thick(thickValue);
                 break;
             case "LOOKAT":
                 if (valueList.length == 1) {
                 	int id = valueList[0].getInt();
-                	lookAtCursor(id);
+                    if (!cursorController.getCursors().containsKey(id)) {
+                        return new InterpreterException("Cursor " + id + " does not exist");
+                    }
+                    lookAtCursor(id);     	
                 } else if (valueList.length == 2) {
                     Double valueLookAt1 = valueList[0].getDouble();
                     Double valueLookAt2 = valueList[1].getDouble();
@@ -295,5 +306,7 @@ public abstract class Cursor {
             default:
                 break;
         }
+        return null;
 	}
+    
 }

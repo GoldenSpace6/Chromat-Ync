@@ -76,7 +76,11 @@ public class Interpreter {
 			return new InterpreterException("Wrong number of arguments for command "+currentInstruction.getCommand()+" ,got "+Arrays.toString(currentInstruction.getArgs()));    		
     	}
     	//----
-        System.out.println(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
+        System.out.print(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
+		if (args[0] != null && args[0].getIsPercentage()) {
+			System.out.print("%");
+		}	
+		System.out.println("");
 		//outputDisplay(currentInstruction.getCommand().toString()+" "+Arrays.toString(args));
     	//----
     	
@@ -216,7 +220,8 @@ public class Interpreter {
     			return new InterpreterException("No cursor Selected");
     		}
 			for(Cursor i:selectedCursor) {
-				i.execCommand(currentInstruction.getCommand(), args);
+				Exception exception = i.execCommand(currentInstruction.getCommand(), args);
+				if (exception != null) {return exception;} // exit if exception found in execCommand of cursor
 			}			
 			setNextCurrentInstruction();	
     	}

@@ -14,6 +14,7 @@ public class CursorMirrorAxial extends Cursor {
     private double y2;
 
     public CursorMirrorAxial(Canvas canvas, CursorController cursorController, Cursor fatherCursor, double x1, double y1 , double x2, double y2) {
+        this.canvas = canvas;
         Platform.runLater(() -> {
             this.x1 = x1;
             this.y1 = y1;
@@ -29,6 +30,7 @@ public class CursorMirrorAxial extends Cursor {
             thickness = 1;
             drawColor = Color.BLACK;
             this.cursorController = cursorController;
+            
         });
     }
 
@@ -70,7 +72,7 @@ public class CursorMirrorAxial extends Cursor {
         }
 
         newRotation = (-rotationFather + 2*rotationAxe)%360;
-        setRotation(newRotation);
+        rotation.set(newRotation);
     }
 
     // mirror axial turn
@@ -84,29 +86,35 @@ public class CursorMirrorAxial extends Cursor {
     // mirror axial mov
     public void mov(double x, double y) {
         Platform.runLater(() -> {
-            mirrorPos(this.x.get() + x, this.y.get() + y);
+            mirrorPos(fatherCursor.getX(),fatherCursor.getY());
         });
     }
 
     // mirror axial pos
     public void pos(double x, double y) {
         Platform.runLater(() -> {
-            mirrorPos(x, y);
+            mirrorPos(fatherCursor.getX(),fatherCursor.getY());
         });
     }
 
     // mirror axial lookAtCursor
     public void lookAtCursor(int id) {
-        double xPos = cursorController.getCursors().get(id).get(0).getX();
-        double yPos = cursorController.getCursors().get(id).get(0).getY();
-        double[] pos = getMirrorPos(xPos, yPos);
-        lookAt(pos[0], pos[1]);
+        Platform.runLater(() -> {
+            initRotation();
+        });
+        //double xPos = cursorController.getCursors().get(id).get(0).getX();
+        //double yPos = cursorController.getCursors().get(id).get(0).getY();
+        //double[] pos = getMirrorPos(xPos, yPos);
+        //lookAt(pos[0], pos[1]);
     }
 
     // mirror axial lookAtPos
     public void lookAtPos(double xPos, double yPos) {
-        double[] pos = getMirrorPos(xPos, yPos);
-        lookAt(pos[0], pos[1]);
+        Platform.runLater(() -> {
+            initRotation();
+        });
+        //double[] pos = getMirrorPos(xPos, yPos);
+        //lookAt(pos[0], pos[1]);
     }
 
 }

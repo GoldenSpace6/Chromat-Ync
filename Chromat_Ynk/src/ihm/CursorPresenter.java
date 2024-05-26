@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cursors.Cursor;
+import cursors.CursorNormal;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -53,6 +54,9 @@ public class CursorPresenter {
                     Platform.runLater(() -> {
                         for (Cursor cursor : change.getAddedSubList()) {
                             Polygon cursorTriangle = createTriangleCursor();
+                            if (!(cursor instanceof CursorNormal)) {
+                                cursorTriangle.setFill(Color.GREY);
+                            }
                             cursorTriangle.layoutXProperty().bind(cursor.xProperty());
                             cursorTriangle.layoutYProperty().bind(cursor.yProperty());
                             cursorTriangle.visibleProperty().bind(cursor.isVisibleProperty());
