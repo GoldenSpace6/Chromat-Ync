@@ -1,0 +1,75 @@
+Value Type :
+NUM : is a double 
+STR : is a string
+BOOL : is a boolean
+
+All Value can be an Expression, a variable, or an explicit Value
+VAR : is only made of letter/ can only be of one type /need to be declared before being used. ex : ab, A, HelloWorld
+
+Explicit value :
+NUM : can be an integer, negative or decimal value. ex : 5, 0.3, -6.28
+STR : is defined between double or simple quote. ex: "Hello", 'World'
+BOOL : is defined by TRUE or FALSE
+
+Expression : is made of values seperatade by Operator
+an Expression cannot contain spaces
+
+Operator:
+AND,OR,DIF: 
+take multiple BOOL and return a BOOL. (read from left to right)
+ex: A&&B, TRUE||FALSE!A
+EQUALS,LESS,LESSEQUALS,GREATER,GREATEREQUALS:
+take 2 NUM and return a BOOL
+ex: a==5, b<a, c<=3, 5>d, 6>=7
+ADD,SUBSTRACT, MULTIPLY,DIVIDE:
+take multiple NUM and return a NUM (read multiplication and division first then from right to left)
+ex: 5*3+b , 9-c/4
+
+Instruction : define a single line in the file
+Command : is the first word of an instruction
+
+InstructionBlock:
+start when an Instruction start with a InstructionBlockCommand
+and close with the first END instruction that doesn't close another command
+Ex:
+FOR i 10
+...
+IF TRUE
+...
+END (close IF instruction)
+...
+END (close FOR instruction)
+
+InstructionBlockCommand:
+IF BOOL: execute the blockInstruction if BOOL return true
+WHILE BOOL: loop through the blockInstruction while BOOL return true
+FOR VAR (NUM1) NUM2 (NUM3): define VAR at NUM1 or 0 if NUM1 is not given
+Increment VAR with NUM3 or 1 if not given
+loop though the blockInstruction while VAR<NUM2
+
+MIRROR NUM1 NUM2 : create a temporary cursor opposite from the point NUM1 NUM2 that will do the same action as the selected cursor
+MIRROR NUM1 NUM2 NUM3 NUM4 : create a temporary cursor that will do the opposite action as the selected cursor from the line define by the point NUM1 NUM2 and NUM3 NUM4
+MIMIC NUM : create a temporary cursor positioned as the selected cursor that will do the same action as the cursor with NUM as it's id
+
+Command :
+NUM VAR NUM: define VAR with value NUM
+STR VAR STR: define VAR with value STR
+BOOL VAR BOOL:define VAR with value BOOL
+DEL VAR: undefine VAR
+
+CURSOR VAR: create and select a cursor with VAR as it's id
+SELECT VAR: select a cursor with VAR as it's id
+REMOVE: remove the cursor with VAR as it's id
+
+(when a NUM is given with % it will change it's value to a percentage the size of the screen)
+FWD NUM (%) : move the selected cursor NUM pixel in it's rotation and draw a line of it's movement
+BWD NUM (%) : move the selected cursor NUM pixel in it's opposite rotation and draw a line of it's movement
+TURN NUM : rotate the selected cursor NUM degree.
+MOV NUM1 (%) NUM2 (%) : move the selected cursor relatively
+POS NUM1 (%) NUM2 (%) : set the selected cursor position
+HIDE/SHOW : hide or show the selected cursor
+PRESS NUM (%): change the alpha value of the color being drawn
+COLOR NUM1 NUM2 NUM3 : change the rgb value of the color being drawn
+THICK NUM : change the thickness of the line being drawn
+LOOKAT NUM : rotate the selected cursor so that it is looking at the cursor with NUM as it's id
+LOOKAT NUM1 (%) NUM2 (%) : rotate the selected cursor so that it is looking at coordinate NUM1 NUM2
