@@ -12,7 +12,6 @@ public class UserObjectValue extends Evaluable {
 		type=variableType;
 		isPercentage = false;
 		if(isANumber(str) && variableType==VariableType.NUM) {
-			isPercentage = false;
 			value=Double.valueOf(str);		
 		} else if(isABoolean(str) && variableType==VariableType.BOOL) {
 			value=str.equals("TRUE");		
@@ -54,6 +53,9 @@ public class UserObjectValue extends Evaluable {
 	}
 	public boolean getIsPercentage() {
 		return isPercentage;
+	}
+	public void setIsPercentage(boolean isPercentage) {
+		this.isPercentage = isPercentage;
 	}
 	public Object getValue() {
 		switch (type) {
@@ -107,7 +109,7 @@ public class UserObjectValue extends Evaluable {
 	}
 	//return true if str represent a String
 	private boolean isAString(String str) {
-		return str.startsWith("\"") && str.endsWith("\"");
+		return str.startsWith("\"") && str.endsWith("\"") || str.startsWith("'") && str.endsWith("'");
 		//return str.startsWith("\"|'") && str.endsWith("\"|'");
 	}
 	//return true if str represent a Variable

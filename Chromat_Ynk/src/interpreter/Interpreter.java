@@ -75,6 +75,9 @@ public class Interpreter {
 	        	for(int i=0;i<j.length;i++) {
 
 	        		UserObjectValue t = new UserObjectValue(Evaluable.newEvaluable(currentInstruction.getArgs()[i],j[i]).eval(vars),j[i], currentInstruction.getArgs()[i]);
+					if (vars.containsKey(currentInstruction.getArgs()[i])) {
+						t.setIsPercentage(vars.get(currentInstruction.getArgs()[i]).getIsPercentage());
+					}
 					args[i] = t;
 
 	        	}
