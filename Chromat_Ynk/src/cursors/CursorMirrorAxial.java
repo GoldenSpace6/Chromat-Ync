@@ -91,8 +91,9 @@ public class CursorMirrorAxial extends Cursor {
     // mirror axial turn
     public void turn(double value) {
         Platform.runLater(() -> {
-            rotation.set(rotation.get() - value);
-            rotation.set(rotation.get() % 360);
+            initRotation();
+            //rotation.set(rotation.get() - value);
+            //rotation.set(rotation.get() % 360);
         });
     }
 
