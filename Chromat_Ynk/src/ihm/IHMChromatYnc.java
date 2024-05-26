@@ -1,5 +1,6 @@
 package ihm;
 
+import interpreter.Interpreter;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -63,6 +64,7 @@ public class IHMChromatYnc extends Application {
 
         // Create components of scriptMenu
         MenuItem loadScriptItem = new MenuItem("Load Script");
+        MenuItem resetInterpreterItem = new MenuItem("Reset Interpreter");
         MenuItem nextFrameItem = new MenuItem("Next Frame [SPACE]");
         nextFrameItem.setDisable(true);
         Menu scriptDisplayModeMenu = new Menu("Script Display Mode");
@@ -117,6 +119,7 @@ public class IHMChromatYnc extends Application {
                 nextFrameItem.setDisable(false);
             }
         }); 
+        resetInterpreterItem.setOnAction(e -> ctrlChromatYnc.resetInterpreter());
         nextFrameItem.setOnAction(e -> {    // nextFrameItem event
             inputTextField.getParent().requestFocus();
             ctrlChromatYnc.nextFrame();
@@ -161,7 +164,7 @@ public class IHMChromatYnc extends Application {
         imageMenu.getItems().addAll(resetImageItem, saveImageItem);
 
         // Add components to scriptMenu
-        scriptMenu.getItems().addAll(loadScriptItem, nextFrameItem, new SeparatorMenuItem(), scriptDisplayModeMenu, exceptionSettingItem);
+        scriptMenu.getItems().addAll(loadScriptItem, nextFrameItem, resetInterpreterItem, new SeparatorMenuItem(), scriptDisplayModeMenu, exceptionSettingItem);
 
         // Add components to menuBar
         menuBar.getMenus().addAll(imageMenu, scriptMenu);
@@ -202,6 +205,7 @@ public class IHMChromatYnc extends Application {
     
         primaryStage.setTitle("ChromatYnc");
         primaryStage.setScene(scene);
+        primaryStage.setOnCloseRequest(event -> Interpreter.stopProcessFileThread());
         primaryStage.show();
         primaryStage.setResizable(false);
     }

@@ -5,7 +5,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import cursors.Cursor;
 import javafx.stage.FileChooser;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.canvas.Canvas;
@@ -115,9 +119,11 @@ public class CtrlChromatYnc {
     // reset canvas
     public void resetCanvas() {
         output("reset image");
-        chromatYnc.setCursorController(new CursorController(chromatYnc.getCanvas()));
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        //Interpreter.stopProcessFileThread(); 
+        Platform.runLater(() -> {      
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        });
     }
 
     // save canvas to file
@@ -157,6 +163,15 @@ public class CtrlChromatYnc {
                 e.printStackTrace();
             }
         }
+    }
+
+    // reset interpreter
+    public void resetInterpreter() {
+        output("reset interpreter");
+        Platform.runLater(() -> {
+            ObservableMap<Integer, ObservableList<Cursor>> cursors = chromatYnc.getCursorController().getCursors();
+            cursors.clear();
+        });
     }
 
     // next frame

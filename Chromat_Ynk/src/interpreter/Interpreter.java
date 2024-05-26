@@ -6,21 +6,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import cursors.Cursor;
 import ihm.ChromatYnc;
 import ihm.CursorController;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.scene.canvas.Canvas;
 import lexer.Command;
 import lexer.InstructionNode;
 import lexer.Parser;
 
 public class Interpreter {
+	private static volatile boolean running = true;
+
 	private HashMap<String, UserObjectValue> vars;
 	private CursorController cursorController;
 	private ObservableMap<Integer, ObservableList<Cursor>> cursors;
@@ -31,17 +36,21 @@ public class Interpreter {
 	private StringProperty output;
 	private BooleanProperty isContinuous;
 	private BooleanProperty stopWhenException;
+	private Canvas canvas;
+	private LinkedList<ArrayList<Cursor>> cursorsToDeleteList;
 
 	private Exception exception;
     
     public Interpreter(File f, ChromatYnc chromatYnc) {
     	this.vars= new HashMap<String, UserObjectValue>();
 		this.cursorController = chromatYnc.getCursorController();
+		this.cursorsToDeleteList = new LinkedList<>();
 		this.timeBetweenFrames = chromatYnc.delayBetweenFramesProperty();
 		this.isContinuous = chromatYnc.isContinuousProperty();
 		this.stopWhenException = chromatYnc.stopWhenExceptionProperty();
 		this.output = chromatYnc.outputProperty();
     	this.cursors= cursorController.getCursors();
+		this.canvas = chromatYnc.getCanvas();
     	Parser parser = new Parser(f);
 		parser.parserRec();
 		this.currentInstruction = parser.getStartInstruction();
@@ -94,7 +103,13 @@ public class Interpreter {
     		} else if (currentInstruction.getCommand()==Command.MIMIC) {
     			if (currentInstruction.getHasBeenExecuted()) {
     				//Remove temporary Cursor
-
+					ArrayList<Cursor> toDelete = cursorsToDeleteList.getLast();
+					Platform.runLater(() -> {
+						for(Cursor i: toDelete) {
+							cursorController.removeCursor(i);
+						}
+						cursorsToDeleteList.removeLast();
+					});
     				currentInstruction = currentInstruction.getNextInstruction();
     			} else {
     				//Create temporary Cursor
@@ -106,9 +121,13 @@ public class Interpreter {
 							toAdd.add(i);
 						}
 					}
+					ArrayList<Cursor> cursorMimicArray = new ArrayList<>();
 					for(Cursor i: toAdd) {
-						cursorController.addCursorMimic(idToMimic, i);
+						Cursor cursorMimic = cursorController.createCursorMimic(idToMimic, i);
+						cursorController.addCursor(cursorMimic);
+						cursorMimicArray.add(cursorMimic);
 					}
+					cursorsToDeleteList.addLast(cursorMimicArray);
 					selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
 					//MIMIC the first cursor of the id given
 					//cursors.get(args[0].getInt()).add(new Cursor(cursors.get(args[0].getInt()).get(0)));
@@ -118,7 +137,13 @@ public class Interpreter {
     		} else if (currentInstruction.getCommand()==Command.MIRROR) {
     			if (currentInstruction.getHasBeenExecuted()) {
     				//Remove temporary Cursor
-
+					ArrayList<Cursor> toDelete = cursorsToDeleteList.getLast();
+					Platform.runLater(() -> {
+						for(Cursor i: toDelete) {
+							cursorController.removeCursor(i);
+						}
+						cursorsToDeleteList.removeLast();
+					});
     				currentInstruction = currentInstruction.getNextInstruction();
     			} else {
     				//Create temporary Cursor
@@ -130,9 +155,21 @@ public class Interpreter {
 								toAdd.add(i);
 							}
 						}
+						ArrayList<Cursor> cursorMirrorArray = new ArrayList<>();
 						for(Cursor i: toAdd) {
-							cursorController.addCursorMirrorCenter(i ,args[0].getDouble(), args[1].getDouble());
+							Double xCenter = args[0].getDouble();
+							Double yCenter = args[1].getDouble();
+							if (args[0].getIsPercentage()) {
+								xCenter = xCenter/100 * canvas.getWidth(); 
+							}
+							if (args[1].getIsPercentage()) {
+								yCenter = yCenter/100 * canvas.getHeight();
+							}
+							Cursor cursorMirror = cursorController.createCursorMirrorCenter(i, xCenter, yCenter);
+							cursorController.addCursor(cursorMirror);
+							cursorMirrorArray.add(cursorMirror);
 						}
+						cursorsToDeleteList.addLast(cursorMirrorArray);
 						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
 					} else {
 						List<Cursor> toAdd = new ArrayList<>();
@@ -141,9 +178,29 @@ public class Interpreter {
 								toAdd.add(i);
 							}
 						}
+						ArrayList<Cursor> cursorMirrorArray = new ArrayList<>();
 						for(Cursor i: toAdd) {
-							cursorController.addCursorMirrorAxial(i ,args[0].getDouble(), args[1].getDouble(), args[2].getDouble(), args[3].getDouble());
+							Double x1 = args[0].getDouble();
+							Double y1 = args[1].getDouble();
+							Double x2 = args[2].getDouble();
+							Double y2 = args[3].getDouble();
+							if (args[0].getIsPercentage()) {
+								x1 = x1/100 * canvas.getWidth(); 
+							}
+							if (args[1].getIsPercentage()) {
+								y1 = y1/100 * canvas.getHeight();
+							}		
+							if (args[2].getIsPercentage()) {
+								x2 = x2/100 * canvas.getWidth(); 
+							}
+							if (args[3].getIsPercentage()) {
+								y2 = y2/100 * canvas.getHeight();
+							}
+							Cursor cursorMirror = cursorController.createCursorMirrorAxial(i, x1, y1, x2, y2);
+							cursorController.addCursor(cursorMirror);
+							cursorMirrorArray.add(cursorMirror);
 						}
+						cursorsToDeleteList.addLast(cursorMirrorArray);
 						selectedCursor = cursorController.getCursors().get(selectedCursor.get(0).getId());
 					}
     				currentInstruction = currentInstruction.getConditionInstruction();
@@ -162,7 +219,8 @@ public class Interpreter {
 				} else if (id<0) {
 					outputDisplay(args[0].getInt()+" is an invalid id");
 				} else {
-					cursorController.addCursorNormal(id);
+					Cursor cursorNormal = cursorController.createCursorNormal(id);
+					cursorController.addCursor(cursorNormal);
 					
 					//select the created cursor
 					selectedCursor=cursorController.getCursors().get(id);
@@ -245,7 +303,7 @@ public class Interpreter {
     }
     
     public void executeAll() throws InterpreterException {
-    	while(currentInstruction != null && isContinuous.get()) {
+    	while(currentInstruction != null && isContinuous.get() && running) {
     		exception = nextStep();
 			if (exception != null) {
 				if (stopWhenException.get()) {
@@ -269,4 +327,8 @@ public class Interpreter {
 			  } 		
     	}
     }
+
+	public static void stopProcessFileThread() {
+		running = false;
+	}
 }

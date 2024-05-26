@@ -21,38 +21,36 @@ public class CursorController {
         this.canvas = canvas;
     }
 
-    public void addCursorNormal(int id) {
+    public void addCursor(Cursor cursor) {
+        ObservableList<Cursor> cursorList = cursors.computeIfAbsent(cursor.getId(), k -> FXCollections.observableArrayList());
+        cursorList.add(cursor);
+        cursors.put(cursor.getId(), cursorList);
+    }
+
+    public Cursor createCursorNormal(int id) {
         Cursor cursor = new CursorNormal(canvas, this);
         cursor.setId(id);
-        ObservableList<Cursor> cursorList = cursors.computeIfAbsent(id, k -> FXCollections.observableArrayList());
-        cursorList.add(cursor);
-        cursors.put(id, cursorList);
+        return cursor;
     }
 
-    public void addCursorMimic(int idToMimic, Cursor fathercursor) {
+    public Cursor createCursorMimic(int idToMimic, Cursor fathercursor) {
         Cursor cursor = new CursorMimic(canvas, this, fathercursor);
         cursor.setId(idToMimic);
-        ObservableList<Cursor> cursorList = cursors.computeIfAbsent(idToMimic, k -> FXCollections.observableArrayList());
-        cursorList.add(cursor);
-        cursors.put(idToMimic, cursorList);
+        return cursor;
     }
 
-    public void addCursorMirrorCenter(Cursor fatherCursor, double xCenter, double yCenter) {
+    public Cursor createCursorMirrorCenter(Cursor fatherCursor, double xCenter, double yCenter) {
         Cursor cursor = new CursorMirrorCenter(canvas, this, fatherCursor, xCenter, yCenter);
         int id = fatherCursor.getId();
         cursor.setId(id);
-        ObservableList<Cursor> cursorList = cursors.computeIfAbsent(id, k -> FXCollections.observableArrayList());
-        cursorList.add(cursor);
-        cursors.put(id, cursorList);
+        return cursor;
     }
 
-    public void addCursorMirrorAxial(Cursor fatherCursor, double x1, double y1, double x2, double y2) {
+    public Cursor createCursorMirrorAxial(Cursor fatherCursor, double x1, double y1, double x2, double y2) {
         Cursor cursor = new CursorMirrorAxial(canvas, this, fatherCursor, x1, y1, x2, y2);
         int id = fatherCursor.getId();
         cursor.setId(id);
-        ObservableList<Cursor> cursorList = cursors.computeIfAbsent(id, k -> FXCollections.observableArrayList());
-        cursorList.add(cursor);
-        cursors.put(id, cursorList);
+        return cursor;
     }
 
     /*
@@ -64,8 +62,12 @@ public class CursorController {
     }
     */
 
-    public void removeCursor(int id) {
+    public void removeCursors(int id) {
         cursors.remove(id);
+    }
+
+    public void removeCursor(Cursor cursor) {
+        cursors.get(cursor.getId()).remove(cursor);
     }
 
 
